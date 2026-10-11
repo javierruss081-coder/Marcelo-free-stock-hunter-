@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1220" />
-  <title>Marcelo Stock Hunter V5.2</title>
+  <title>Marcelo Stock Hunter V6</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <style>
@@ -122,7 +122,28 @@
     .search-hint{font-size:.72rem;color:var(--muted)}
     @media(max-width:650px){.prediction-box{grid-template-columns:1fr}.prediction-note{grid-column:1}}
 
-  </style>
+  
+    .topbar{position:sticky;top:0;z-index:20;padding:10px 0 12px;
+      background:linear-gradient(180deg,rgba(11,18,32,.96),rgba(11,18,32,.78),transparent);
+      backdrop-filter:blur(10px)}
+    .panel,.stat,.card{box-shadow:0 14px 40px rgba(0,0,0,.20)}
+    .stock-row{transition:transform .12s ease,border-color .12s ease,background .12s ease}
+    .stock-row:hover{transform:translateY(-1px);background:#132038}
+    .chart-toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:4px 0 8px}
+    .chart-toolbar .btn{padding:6px 9px;font-size:.78rem}
+    .chart-toolbar .active{background:#1d4ed8;border-color:#3b82f6}
+    .chart-wrap{background:linear-gradient(180deg,rgba(15,26,45,.55),rgba(8,15,27,.2));
+      border:1px solid rgba(51,65,85,.45);border-radius:14px;padding:5px}
+    .chart-tooltip{position:absolute;pointer-events:none;z-index:5;min-width:150px;
+      background:rgba(8,15,27,.95);border:1px solid #334155;border-radius:10px;padding:8px 10px;
+      font-size:.76rem;box-shadow:0 10px 30px rgba(0,0,0,.32)}
+    .prediction-box{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .prediction-reasons{grid-column:1/-1;display:flex;gap:5px;flex-wrap:wrap}
+    .prediction-reasons .pill{margin:0}
+    .model-badge{font-size:.68rem;color:#93c5fd}
+    @media(max-width:760px){.prediction-box{grid-template-columns:1fr 1fr}}
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -130,8 +151,8 @@
     <div class="brand">
       <img src="icon-192.png" alt="">
       <div>
-        <h1>Marcelo Stock Hunter V5.2</h1>
-        <small>Promotions • fast search • charts • trend outlook • watchlist</small>
+        <h1>Marcelo Stock Hunter V6</h1>
+        <small>More stocks • faster search • richer charts • historical-analog outlook</small>
       </div>
     </div>
     <div class="top-actions">
@@ -141,7 +162,7 @@
   </header>
 
   <div class="notice">
-    Research tool only. Low share price does not mean a company is undervalued. The Research Score and Trend Outlook are historical-data heuristics—not guarantees, price targets, or recommendations.
+    Research tool only. V6's 5-day outlook summarizes historical analogs with similar price/volume setups. It is not a guarantee, price target, or recommendation.
   </div>
 
   <nav class="nav">
@@ -250,11 +271,22 @@
               <div id="selectedScore"></div>
             </div>
             <div id="predictionBox" class="prediction-box" hidden></div>
-            <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+            <div class="chart-toolbar">
+              <span class="muted">Chart</span>
+              <button class="btn active" id="togglePrice">Price</button>
+              <button class="btn active" id="toggleSma20">SMA 20</button>
+              <button class="btn" id="toggleSma50">SMA 50</button>
+              <span class="muted">Hover chart for details</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="priceChart"></canvas>
+              <div id="chartTooltip" class="chart-tooltip" hidden></div>
+            </div>
             <div class="range-buttons">
               <button class="btn" data-range="5">1W</button>
               <button class="btn active" data-range="22">1M</button>
               <button class="btn" data-range="66">3M</button>
+              <button class="btn" data-range="132">6M</button>
               <button class="btn" data-range="260">1Y</button>
             </div>
             <div id="stockDetails" class="detail-grid"></div>
@@ -301,7 +333,7 @@
   </main>
 
   <div class="footer">
-    V5.2 • Prices may be delayed. Trend Outlook uses historical price/volume only. This app never places trades or moves money.
+    V6 • Prices may be delayed. The outlook uses historical price/volume patterns only. This app never places trades or moves money.
   </div>
 </div>
 
@@ -443,11 +475,29 @@ function normalizedSearch(s){
   return `${s.ticker||''} ${s.name||''} ${s.sector||''}`.toLowerCase();
 }
 
+function serverOutlook(s){
+  const p=s.prediction;
+  if(!p || !p.label) return trendOutlook(s);
+  return {
+    label:p.label,
+    key:p.key || "neutral",
+    strength:Number(p.confidence||0),
+    confidence:Number(p.confidence||0),
+    upRate:Number(p.up_rate_pct),
+    expectedReturn:Number(p.expected_return_pct),
+    lowPct:Number(p.range_low_pct),
+    highPct:Number(p.range_high_pct),
+    analogs:Number(p.analogs||0),
+    reasons:Array.isArray(p.reasons)?p.reasons:[],
+    model:p.model || "Historical analog",
+    score:Number.isFinite(Number(p.up_rate_pct)) ? (Number(p.up_rate_pct)-50)*2 : 0
+  };
+}
 function decorateStocks(stocks){
   return (stocks||[]).map(s=>({
     ...s,
     _score:scoreStock(s),
-    _outlook:trendOutlook(s),
+    _outlook:serverOutlook(s),
     _search:normalizedSearch(s)
   }));
 }
@@ -455,6 +505,10 @@ function decorateStocks(stocks){
 let decoratedStocks=[];
 let quickMode='all';
 let searchTimer=null;
+let chartShowPrice=true;
+let chartShowSma20=true;
+let chartShowSma50=false;
+let chartPoints=[];
 function saveWatchlist(){
   localStorage.setItem("v5Watchlist",JSON.stringify([...watchlist]));
 }
@@ -556,7 +610,7 @@ function renderHome(){
         <td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></td>
         <td>${money(s.price)}</td>
         <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
-        <td><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span></td>
+        <td><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span><div class="muted">${Number.isFinite(s._outlook.upRate)?s._outlook.upRate.toFixed(0)+"% analog up-rate":""}</div></td>
         <td class="score">${s._score}/100</td>
       </tr>`).join("")}</tbody>
     </table>`;
@@ -645,51 +699,132 @@ function clearChart(){
   $("chartTitle").textContent="Select a stock"; $("chartSubtitle").textContent=""; $("stockDetails").innerHTML=""; $("predictionBox").hidden=true;
 }
 
+function movingAverageFromHistory(hist, period){
+  const vals=hist.map(x=>Number(x.close));
+  return vals.map((_,i)=>{
+    if(i+1<period) return null;
+    let sum=0;
+    for(let j=i-period+1;j<=i;j++) sum+=vals[j];
+    return sum/period;
+  });
+}
+
 function drawSelected(){
   const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===selectedTicker);
   if(!s){ clearChart(); return; }
+
   $("chartTitle").textContent=`${s.ticker} — ${s.name||""}`;
   $("chartSubtitle").textContent=`${money(s.price)} • ${pct(s.change_pct)} today • ${s.sector||"Unknown sector"}`;
   $("selectedScore").innerHTML=`<span class="pill ${s._score>=70?"green":"yellow"}">Research ${s._score}/100</span>`;
-  const pred=s._outlook||trendOutlook(s);
+
+  const pred=s._outlook||serverOutlook(s);
   $("predictionBox").hidden=false;
+  const current=Number(s.price)||0;
+  const lowPrice=Number.isFinite(pred.lowPct) ? current*(1+pred.lowPct/100) : null;
+  const highPrice=Number.isFinite(pred.highPct) ? current*(1+pred.highPct/100) : null;
+  const expected=Number.isFinite(pred.expectedReturn) ? pct(pred.expectedReturn) : "—";
+  const upRate=Number.isFinite(pred.upRate) ? `${pred.upRate.toFixed(1)}%` : "—";
+  const rangeText=(lowPrice && highPrice) ? `${money(lowPrice)} – ${money(highPrice)}` : "—";
   $("predictionBox").innerHTML=`
-    <div><div class="pred-label">5-trading-day trend outlook</div><div class="pred-main ${pred.key}">${pred.label}</div></div>
-    <div><div class="pred-label">Signal strength</div><div class="pred-main">${pred.strength}/100</div></div>
-    <div><div class="pred-label">Model range</div><div class="pred-main">${money(pred.low)} – ${money(pred.high)}</div></div>
-    <div class="prediction-note">Historical trend/volatility model only. It does not use news, earnings surprises, or future information and should not be treated as a price target.</div>`;
+    <div><div class="pred-label">5-day historical outlook</div><div class="pred-main ${pred.key}">${pred.label}</div><div class="model-badge">${esc(pred.model||"Historical model")}</div></div>
+    <div><div class="pred-label">Analog up-rate</div><div class="pred-main">${upRate}</div></div>
+    <div><div class="pred-label">Expected 5-day move</div><div class="pred-main">${expected}</div></div>
+    <div><div class="pred-label">Historical analog range</div><div class="pred-main">${rangeText}</div></div>
+    <div class="prediction-reasons">${(pred.reasons||[]).map(r=>`<span class="pill">${esc(r)}</span>`).join("")}</div>
+    <div class="prediction-note">Based on ${pred.analogs||0} similar historical setups from this stock. Historical patterns can fail, especially around news and earnings.</div>`;
 
   const full=(s.history||[]).filter(p=>Number.isFinite(Number(p.close)));
   const hist=full.slice(-Math.min(chartRange,full.length));
   const c=$("priceChart"),ctx=c.getContext("2d");
   const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
-  c.width=Math.max(600,Math.floor(rect.width*dpr)); c.height=Math.max(260,Math.floor(rect.height*dpr));
+  c.width=Math.max(700,Math.floor(rect.width*dpr));
+  c.height=Math.max(300,Math.floor(rect.height*dpr));
   ctx.clearRect(0,0,c.width,c.height);
   if(hist.length<2) return;
 
-  const vals=hist.map(p=>Number(p.close)), min=Math.min(...vals), max=Math.max(...vals);
-  const range=(max-min)||1, pad=46*dpr;
-  const x=i=>pad+i*(c.width-2*pad)/(hist.length-1);
-  const y=v=>pad+(max-v)*(c.height-2*pad)/range;
+  let sma20=hist.map(p=>Number.isFinite(Number(p.sma20))?Number(p.sma20):null);
+  let sma50=hist.map(p=>Number.isFinite(Number(p.sma50))?Number(p.sma50):null);
+  if(!sma20.some(Number.isFinite)) sma20=movingAverageFromHistory(hist,20);
+  if(!sma50.some(Number.isFinite)) sma50=movingAverageFromHistory(hist,50);
 
-  ctx.strokeStyle="rgba(148,163,184,.18)"; ctx.lineWidth=1*dpr;
-  for(let i=0;i<5;i++){ const gy=pad+i*(c.height-2*pad)/4; ctx.beginPath();ctx.moveTo(pad,gy);ctx.lineTo(c.width-pad,gy);ctx.stroke(); }
+  const priceVals=hist.map(p=>Number(p.close));
+  const allVals=[...priceVals];
+  if(chartShowSma20) allVals.push(...sma20.filter(Number.isFinite));
+  if(chartShowSma50) allVals.push(...sma50.filter(Number.isFinite));
+  let min=Math.min(...allVals),max=Math.max(...allVals);
+  const extra=(max-min)*0.10 || max*0.03 || 1;
+  min-=extra; max+=extra;
 
-  const rising=vals[vals.length-1]>=vals[0];
-  ctx.strokeStyle=rising?"#4ade80":"#f87171"; ctx.lineWidth=2.5*dpr;
-  ctx.beginPath(); hist.forEach((p,i)=>{const px=x(i),py=y(Number(p.close));i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();
+  const padL=54*dpr,padR=16*dpr,padT=18*dpr,padB=62*dpr;
+  const plotH=c.height-padT-padB;
+  const plotW=c.width-padL-padR;
+  const x=i=>padL+i*plotW/(hist.length-1);
+  const y=v=>padT+(max-v)*plotH/(max-min);
 
-  ctx.fillStyle="#94a3b8"; ctx.font=`${11*dpr}px system-ui`;
-  ctx.fillText("$"+max.toFixed(2),4*dpr,pad+4*dpr); ctx.fillText("$"+min.toFixed(2),4*dpr,c.height-pad+4*dpr);
-  ctx.fillText(hist[0].date,pad,c.height-10*dpr);
-  const endText=hist[hist.length-1].date; const w=ctx.measureText(endText).width;
-  ctx.fillText(endText,c.width-pad-w,c.height-10*dpr);
+  // Grid
+  ctx.strokeStyle="rgba(148,163,184,.14)";ctx.lineWidth=1*dpr;
+  ctx.fillStyle="#94a3b8";ctx.font=`${11*dpr}px system-ui`;
+  for(let i=0;i<5;i++){
+    const gy=padT+i*plotH/4;
+    ctx.beginPath();ctx.moveTo(padL,gy);ctx.lineTo(c.width-padR,gy);ctx.stroke();
+    const value=max-i*(max-min)/4;
+    ctx.fillText("$"+value.toFixed(value<10?2:1),4*dpr,gy+4*dpr);
+  }
+
+  // Volume bars
+  const volumes=hist.map(p=>Number(p.volume||0));
+  const maxVol=Math.max(...volumes,1);
+  const volBase=c.height-28*dpr;
+  const volHeight=28*dpr;
+  ctx.fillStyle="rgba(59,130,246,.15)";
+  volumes.forEach((v,i)=>{
+    const bh=(v/maxVol)*volHeight;
+    ctx.fillRect(x(i)-1*dpr,volBase-bh,2*dpr,bh);
+  });
+
+  // Area under price
+  if(chartShowPrice){
+    const rising=priceVals.at(-1)>=priceVals[0];
+    const stroke=rising?"#4ade80":"#f87171";
+    const grad=ctx.createLinearGradient(0,padT,0,padT+plotH);
+    grad.addColorStop(0,rising?"rgba(74,222,128,.22)":"rgba(248,113,113,.20)");
+    grad.addColorStop(1,"rgba(15,23,42,0)");
+    ctx.beginPath();
+    priceVals.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v))});
+    ctx.lineTo(x(hist.length-1),padT+plotH);
+    ctx.lineTo(x(0),padT+plotH);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+
+    ctx.beginPath();
+    priceVals.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v))});
+    ctx.strokeStyle=stroke;ctx.lineWidth=2.5*dpr;ctx.stroke();
+  }
+
+  function drawSeries(values,color,width){
+    ctx.beginPath();let started=false;
+    values.forEach((v,i)=>{
+      if(!Number.isFinite(v)) return;
+      if(!started){ctx.moveTo(x(i),y(v));started=true;} else ctx.lineTo(x(i),y(v));
+    });
+    ctx.strokeStyle=color;ctx.lineWidth=width*dpr;ctx.stroke();
+  }
+  if(chartShowSma20) drawSeries(sma20,"#60a5fa",1.6);
+  if(chartShowSma50) drawSeries(sma50,"#facc15",1.6);
+
+  ctx.fillStyle="#94a3b8";ctx.font=`${10*dpr}px system-ui`;
+  ctx.fillText(hist[0].date,padL,c.height-8*dpr);
+  const end=hist.at(-1).date;const ew=ctx.measureText(end).width;
+  ctx.fillText(end,c.width-padR-ew,c.height-8*dpr);
+
+  chartPoints=hist.map((p,i)=>({
+    x:x(i)/dpr, date:p.date, close:Number(p.close), volume:Number(p.volume||0),
+    sma20:sma20[i], sma50:sma50[i]
+  }));
 
   $("stockDetails").innerHTML=`
-    <div class="mini"><div class="k">Market cap</div><div class="v">${money(s.market_cap)}</div></div>
     <div class="mini"><div class="k">Daily volume</div><div class="v">${compact(s.volume)}</div></div>
     <div class="mini"><div class="k">20-day avg volume</div><div class="v">${compact(s.avg_volume_20d)}</div></div>
-    <div class="mini"><div class="k">Sector</div><div class="v">${esc(s.sector||"Unknown")}</div></div>`;
+    <div class="mini"><div class="k">Sector</div><div class="v">${esc(s.sector||"Unknown")}</div></div>
+    <div class="mini"><div class="k">Analog confidence</div><div class="v">${pred.confidence||pred.strength||0}/100</div></div>`;
 }
 
 document.querySelectorAll("[data-range]").forEach(b=>b.addEventListener("click",()=>{
@@ -703,6 +838,35 @@ $("stockSearch").addEventListener("input",()=>{
 });
 ["maxPrice","sectorFilter","volumeFilter","stockSort"].forEach(id=>$(id).addEventListener("change",renderStocks));
 $("refreshStocks").addEventListener("click",refreshStocks);
+
+["togglePrice","toggleSma20","toggleSma50"].forEach(id=>{
+  $(id).addEventListener("click",()=>{
+    if(id==="togglePrice") chartShowPrice=!chartShowPrice;
+    if(id==="toggleSma20") chartShowSma20=!chartShowSma20;
+    if(id==="toggleSma50") chartShowSma50=!chartShowSma50;
+    $("togglePrice").classList.toggle("active",chartShowPrice);
+    $("toggleSma20").classList.toggle("active",chartShowSma20);
+    $("toggleSma50").classList.toggle("active",chartShowSma50);
+    drawSelected();
+  });
+});
+
+$("priceChart").addEventListener("mousemove",e=>{
+  if(!chartPoints.length) return;
+  const rect=$("priceChart").getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  let best=chartPoints[0];
+  for(const p of chartPoints) if(Math.abs(p.x-mx)<Math.abs(best.x-mx)) best=p;
+  const tip=$("chartTooltip");
+  tip.hidden=false;
+  tip.style.left=Math.min(rect.width-170,Math.max(8,best.x+10))+"px";
+  tip.style.top="12px";
+  tip.innerHTML=`<strong>${best.date}</strong><br>Close: ${money(best.close)}<br>Volume: ${compact(best.volume)}
+    ${Number.isFinite(best.sma20)?`<br>SMA20: ${money(best.sma20)}`:""}
+    ${Number.isFinite(best.sma50)?`<br>SMA50: ${money(best.sma50)}`:""}`;
+});
+$("priceChart").addEventListener("mouseleave",()=>{$("chartTooltip").hidden=true;});
+
 
 document.querySelectorAll("[data-quick]").forEach(b=>b.addEventListener("click",()=>{
   quickMode=b.dataset.quick;

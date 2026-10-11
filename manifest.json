@@ -1,12 +1,12 @@
 {
-  "name": "Marcelo Stock Hunter V5",
-  "short_name": "Stock Hunter",
+  "name": "Marcelo Stock Hunter V6",
+  "short_name": "Stock Hunter V6",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
-  "description": "Track free-stock promotions, lower-priced stocks, charts, watchlists, and research signals.",
+  "description": "Expanded stock research dashboard with historical-analog outlooks, richer charts, watchlists, and free-stock promotions.",
   "icons": [
     {
       "src": "icon-192.png",
