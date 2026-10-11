@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "0de22f06f83636ed82a6a3cf",
+    "Broker": "Robinhood",
+    "Offer": "Open account, pick your stock",
+    "Reward": "$5–$200",
+    "Requirement": "$0 deposit indicated; link bank/debit card",
+    "Status": "Likely active / ongoing",
+    "Hunter Score": 95,
+    "Why": "official brokerage source; bank/debit link found without a stated cash deposit; ongoing-offer wording found",
+    "Source URL": "https://robinhood.com/us/en/support/articles/open-account-get-free-stock/",
+    "First Seen": "2026-10-11T21:17:51+00:00",
+    "Last Seen": "2026-10-11T21:17:51+00:00",
+    "Times Seen": 1,
+    "New": true
+  },
+  {
+    "id": "e517ec124201273fb4e0a779",
+    "Broker": "Webull",
+    "Offer": "Free Stock Allocation Rules",
+    "Reward": "Free stock value/number varies by promotion",
+    "Requirement": "Promotion-specific — verify current terms",
+    "Status": "Program rules page active; specific promo may vary",
+    "Hunter Score": 75,
+    "Why": "official brokerage source; official free-stock program rules found",
+    "Source URL": "https://www.webull.com/help/faq/541-Free-Stock-Allocation-Rules",
+    "First Seen": "2026-10-11T21:17:51+00:00",
+    "Last Seen": "2026-10-11T21:17:51+00:00",
+    "Times Seen": 1,
+    "New": true
+  },
+  {
+    "id": "23194bd21d51d4200d287ee4",
+    "Broker": "SoFi Invest",
+    "Offer": "3x Claw - Self-Directed Investing Promotion",
+    "Reward": "Amount varies — verify official terms",
+    "Requirement": "Verify official terms",
+    "Status": "Verify current availability",
+    "Hunter Score": 55,
+    "Why": "official brokerage source",
+    "Source URL": "https://support.sofi.com/hc/en-us/articles/3x-claw-self-directed-investing-promotion",
+    "First Seen": "2026-10-11T21:17:51+00:00",
+    "Last Seen": "2026-10-11T21:17:51+00:00",
+    "Times Seen": 1,
+    "New": true
+  }
+]
