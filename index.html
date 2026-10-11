@@ -3,340 +3,650 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#111827" />
-  <title>Marcelo Free Stock Hunter</title>
+  <meta name="theme-color" content="#0b1220" />
+  <title>Marcelo Stock Hunter V5</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
   <style>
-    :root { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color-scheme: light dark; }
-    body { margin:0; background:Canvas; color:CanvasText; }
-    .wrap { max-width:1100px; margin:0 auto; padding:20px; }
-    .hero,.toolbar,.stats,.tabs { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .hero { justify-content:space-between; align-items:flex-start; }
-    h1 { margin:0 0 5px; }
-    .muted { opacity:.72; }
-    .warning { border:1px solid color-mix(in srgb,orange 55%,transparent); background:color-mix(in srgb,orange 10%,Canvas); padding:12px 14px; border-radius:14px; margin:16px 0; }
-    button,select,input { font:inherit; border-radius:10px; border:1px solid color-mix(in srgb,CanvasText 20%,transparent); padding:10px 12px; background:Canvas; color:CanvasText; }
-    button { cursor:pointer; }
-    button.primary,.tab.active { background:#2563eb; color:white; border-color:#2563eb; }
-    .stats { margin:14px 0; }
-    .stat { flex:1 1 150px; border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:14px; padding:14px; }
-    .stat strong { display:block; font-size:1.6rem; margin-top:4px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:14px; }
-    .card { border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:16px; padding:15px; background:color-mix(in srgb,Canvas 97%,CanvasText); }
-    .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:.78rem; font-weight:700; margin:0 6px 6px 0; background:color-mix(in srgb,#2563eb 16%,Canvas); }
-    .pill.new { background:color-mix(in srgb,#16a34a 18%,Canvas); }
-    .pill.zero { background:color-mix(in srgb,#22c55e 18%,Canvas); }
-    .pill.low { background:color-mix(in srgb,#f59e0b 20%,Canvas); }
-    progress { width:100%; height:12px; }
-    a { color:#2563eb; font-weight:700; }
-    .empty { text-align:center; padding:40px 20px; opacity:.72; }
-    .stock-layout { display:grid; grid-template-columns:minmax(260px,360px) 1fr; gap:16px; }
-    @media (max-width:800px){ .stock-layout{ grid-template-columns:1fr; } }
-    .stock-list { display:flex; flex-direction:column; gap:9px; max-height:620px; overflow:auto; }
-    .stock-row { text-align:left; width:100%; display:flex; justify-content:space-between; gap:10px; align-items:center; }
-    .stock-row.active { outline:2px solid #2563eb; }
-    .up { color:#16a34a; }
-    .down { color:#dc2626; }
-    .chart-card { border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:16px; padding:16px; min-height:390px; }
-    canvas { width:100%; height:300px; display:block; }
-    dialog { width:min(640px,90vw); border-radius:16px; border:1px solid color-mix(in srgb,CanvasText 18%,transparent); padding:0; }
-    dialog form { padding:20px; }
-    dialog input { width:100%; box-sizing:border-box; }
-    footer { margin-top:30px; opacity:.65; font-size:.9rem; }
+    :root{
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color-scheme:dark;
+      --bg:#0b1220; --panel:#111b2e; --panel2:#162238; --line:#263650;
+      --text:#f8fafc; --muted:#94a3b8; --blue:#3b82f6; --green:#22c55e;
+      --red:#ef4444; --yellow:#facc15; --shadow:0 18px 50px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:
+      radial-gradient(circle at 15% 0%,rgba(37,99,235,.18),transparent 28rem),
+      radial-gradient(circle at 90% 10%,rgba(34,197,94,.08),transparent 26rem),
+      var(--bg);color:var(--text)}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:18px}
+    .topbar{display:flex;align-items:center;gap:14px;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:46px;height:46px;border-radius:12px;box-shadow:var(--shadow)}
+    .brand h1{font-size:1.35rem;margin:0}
+    .brand small{color:var(--muted)}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;padding:9px 12px}
+    .btn:hover{background:var(--panel2)}
+    .btn.primary{background:var(--blue);border-color:var(--blue)}
+    .btn.success{background:#166534;border-color:#166534}
+    .nav{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin-bottom:16px}
+    .nav button{white-space:nowrap}
+    .nav .active{background:var(--blue);border-color:var(--blue)}
+    .notice{background:rgba(250,204,21,.07);border:1px solid rgba(250,204,21,.28);
+      padding:11px 13px;border-radius:12px;color:#fde68a;margin-bottom:16px;font-size:.92rem}
+    .grid{display:grid;gap:14px}
+    .stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px}
+    .stat,.panel,.card{background:linear-gradient(180deg,rgba(22,34,56,.96),rgba(17,27,46,.96));
+      border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+    .stat{padding:16px}
+    .stat .label{color:var(--muted);font-size:.82rem}
+    .stat .value{font-size:1.7rem;font-weight:800;margin-top:4px}
+    .panel{padding:16px}
+    .panel h2,.panel h3{margin:0 0 12px}
+    .home-grid{grid-template-columns:1.15fr .85fr}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+    .card{padding:14px}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;font-size:.72rem;
+      font-weight:800;margin-right:5px;margin-bottom:5px;background:#24324b;color:#dbeafe}
+    .pill.green{background:rgba(34,197,94,.16);color:#bbf7d0}
+    .pill.yellow{background:rgba(250,204,21,.15);color:#fef08a}
+    .pill.red{background:rgba(239,68,68,.15);color:#fecaca}
+    .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{color:var(--muted);font-size:.78rem}
+    input,select{background:#0c1526;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+    input:focus,select:focus{outline:2px solid rgba(59,130,246,.5);border-color:var(--blue)}
+    .stocks-layout{display:grid;grid-template-columns:380px 1fr;gap:14px}
+    .stock-list{display:flex;flex-direction:column;gap:8px;max-height:680px;overflow:auto;padding-right:2px}
+    .stock-row{display:grid;grid-template-columns:34px 1fr auto;gap:9px;align-items:center;background:#0e192b;
+      border:1px solid var(--line);border-radius:12px;padding:10px}
+    .stock-row.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset}
+    .star{border:0;background:transparent;color:#64748b;font-size:1.25rem;padding:2px}
+    .star.on{color:var(--yellow)}
+    .stock-main{border:0;background:transparent;color:var(--text);text-align:left;padding:0}
+    .stock-price{text-align:right}
+    .up{color:#4ade80}.down{color:#f87171}
+    .chart-wrap{height:360px;position:relative}
+    canvas{width:100%;height:100%;display:block}
+    .range-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .range-buttons button{padding:6px 9px}
+    .range-buttons .active{background:var(--blue);border-color:var(--blue)}
+    .detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+    .mini{background:#0d1728;border:1px solid var(--line);border-radius:10px;padding:10px}
+    .mini .k{color:var(--muted);font-size:.72rem}.mini .v{font-weight:750;margin-top:2px}
+    .offer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+    .offer-card{background:#0e192b;border:1px solid var(--line);border-radius:14px;padding:14px}
+    .offer-card h3{margin:4px 0}
+    a{color:#93c5fd}
+    progress{width:100%;height:10px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:.88rem}
+    .table th{color:var(--muted);font-size:.75rem}
+    .score{font-weight:850}
+    .empty{text-align:center;color:var(--muted);padding:34px 10px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    dialog{width:min(680px,92vw);background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:16px}
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+    dialog form{padding:4px}
+    .settings-grid{display:grid;gap:12px}
+    .footer{color:var(--muted);font-size:.8rem;margin:22px 0 8px}
+    @media(max-width:900px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .home-grid,.stocks-layout{grid-template-columns:1fr}
+      .detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:520px){
+      .app{padding:12px}.topbar{align-items:flex-start}
+      .stats{grid-template-columns:1fr 1fr}
+      .detail-grid{grid-template-columns:1fr 1fr}
+      .brand h1{font-size:1.05rem}
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="hero">
-    <div>
-      <h1>🎁 Marcelo Free Stock Hunter</h1>
-      <div class="muted">Free-stock offers + low-price stock watchlist</div>
-    </div>
-    <button id="settingsBtn">⚙️ Settings</button>
-  </div>
-
-  <div class="warning">
-    Stock prices can be delayed and low share price does not mean a stock is cheap or safe.
-    Always research the company before investing.
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" data-tab="offers">🎁 Free-stock offers</button>
-    <button class="tab" data-tab="stocks">📈 Low-price stocks</button>
-  </div>
-
-  <section id="offersTab">
-    <div class="toolbar">
-      <select id="offerFilter">
-        <option value="all">All offers</option>
-        <option value="zero">$0-deposit only</option>
-        <option value="new">New only</option>
-      </select>
-      <button class="primary" id="refreshOffersBtn">🔄 Refresh offers</button>
-    </div>
-    <div id="offerStatus" class="muted"></div>
-    <div class="stats">
-      <div class="stat">Offers<strong id="offersCount">0</strong></div>
-      <div class="stat">$0 offers<strong id="zeroCount">0</strong></div>
-      <div class="stat">New<strong id="newCount">0</strong></div>
-    </div>
-    <div id="offerCards" class="grid"></div>
-  </section>
-
-  <section id="stocksTab" hidden>
-    <div class="toolbar">
-      <label>
-        Max price
-        <select id="priceFilter">
-          <option value="5">Under $5</option>
-          <option value="10">Under $10</option>
-          <option value="20" selected>Under $20</option>
-          <option value="50">Under $50</option>
-          <option value="999999">All tracked</option>
-        </select>
-      </label>
-      <label>
-        Sort
-        <select id="stockSort">
-          <option value="price">Lowest price</option>
-          <option value="change">Biggest daily gain</option>
-          <option value="ticker">Ticker</option>
-        </select>
-      </label>
-      <button class="primary" id="refreshStocksBtn">🔄 Refresh prices</button>
-    </div>
-
-    <div id="stockStatus" class="muted"></div>
-    <div class="stats">
-      <div class="stat">Matching stocks<strong id="stockCount">0</strong></div>
-      <div class="stat">Cheapest<strong id="cheapestPrice">—</strong></div>
-      <div class="stat">Price data<strong id="marketUpdated">—</strong></div>
-    </div>
-
-    <div class="stock-layout">
-      <div id="stockList" class="stock-list"></div>
-      <div class="chart-card">
-        <div id="chartTitle"><strong>Select a stock</strong></div>
-        <div id="chartMeta" class="muted"></div>
-        <canvas id="priceChart" width="900" height="320"></canvas>
-        <div id="chartRange" class="muted"></div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <img src="icon-192.png" alt="">
+      <div>
+        <h1>Marcelo Stock Hunter V5</h1>
+        <small>Promotions • stocks • charts • watchlist</small>
       </div>
     </div>
-  </section>
+    <div class="top-actions">
+      <button id="notifyBtn" class="btn">🔔 Enable alerts</button>
+      <button id="settingsBtn" class="btn">⚙️ Settings</button>
+    </div>
+  </header>
 
-  <footer>
-    Prices are for research only and may be delayed. The app does not place trades.
-  </footer>
+  <div class="notice">
+    Research tool only. Low share price does not mean a company is undervalued, and the Research Score is a sorting heuristic—not a prediction or recommendation.
+  </div>
+
+  <nav class="nav">
+    <button class="btn active" data-view="home">🏠 Home</button>
+    <button class="btn" data-view="stocks">📈 Stocks</button>
+    <button class="btn" data-view="offers">🎁 Free-stock offers</button>
+    <button class="btn" data-view="watchlist">⭐ Watchlist</button>
+  </nav>
+
+  <main>
+    <section id="homeView">
+      <div class="grid stats">
+        <div class="stat"><div class="label">Tracked stocks</div><div class="value" id="homeTracked">—</div></div>
+        <div class="stat"><div class="label">Under $20</div><div class="value" id="homeUnder20">—</div></div>
+        <div class="stat"><div class="label">Free-stock offers</div><div class="value" id="homeOffers">—</div></div>
+        <div class="stat"><div class="label">New offers</div><div class="value" id="homeNew">—</div></div>
+      </div>
+
+      <div class="grid home-grid">
+        <div class="panel">
+          <div class="section-head">
+            <h2>Top research candidates</h2>
+            <span class="muted">Heuristic ranking</span>
+          </div>
+          <div id="candidateTable"></div>
+        </div>
+        <div class="panel">
+          <div class="section-head">
+            <h2>Latest new offers</h2>
+            <button class="btn" data-jump="offers">See all</button>
+          </div>
+          <div id="homeOffersList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stocksView" hidden>
+      <div class="panel">
+        <div class="toolbar">
+          <div class="field">
+            <label>Search tracked stocks</label>
+            <input id="stockSearch" placeholder="Ticker or company" />
+          </div>
+          <div class="field">
+            <label>Max share price</label>
+            <select id="maxPrice">
+              <option value="5">Under $5</option>
+              <option value="10">Under $10</option>
+              <option value="20" selected>Under $20</option>
+              <option value="50">Under $50</option>
+              <option value="100">Under $100</option>
+              <option value="999999">Any price</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sector</label>
+            <select id="sectorFilter"><option value="all">All sectors</option></select>
+          </div>
+          <div class="field">
+            <label>Min daily volume</label>
+            <select id="volumeFilter">
+              <option value="0">Any volume</option>
+              <option value="100000">100K+</option>
+              <option value="500000">500K+</option>
+              <option value="1000000" selected>1M+</option>
+              <option value="5000000">5M+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sort</label>
+            <select id="stockSort">
+              <option value="score">Research score</option>
+              <option value="price">Lowest price</option>
+              <option value="gain">Daily gain</option>
+              <option value="volume">Volume</option>
+              <option value="marketcap">Market cap</option>
+            </select>
+          </div>
+          <button id="refreshStocks" class="btn primary">↻ Refresh prices</button>
+        </div>
+
+        <div id="stockStatus" class="muted" style="margin-bottom:10px"></div>
+
+        <div class="stocks-layout">
+          <div>
+            <div id="stockCount" class="muted" style="margin-bottom:8px"></div>
+            <div id="stockList" class="stock-list"></div>
+          </div>
+
+          <div>
+            <div class="section-head">
+              <div>
+                <h2 id="chartTitle">Select a stock</h2>
+                <div id="chartSubtitle" class="muted"></div>
+              </div>
+              <div id="selectedScore"></div>
+            </div>
+            <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+            <div class="range-buttons">
+              <button class="btn" data-range="5">1W</button>
+              <button class="btn active" data-range="22">1M</button>
+              <button class="btn" data-range="66">3M</button>
+              <button class="btn" data-range="260">1Y</button>
+            </div>
+            <div id="stockDetails" class="detail-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="offersView" hidden>
+      <div class="panel">
+        <div class="toolbar">
+          <div class="field">
+            <label>Filter</label>
+            <select id="offerFilter">
+              <option value="all">All offers</option>
+              <option value="zero">$0 deposit</option>
+              <option value="stock">Stock/ETF rewards</option>
+              <option value="new">New only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Search broker</label>
+            <input id="offerSearch" placeholder="Robinhood, Public..." />
+          </div>
+          <button id="refreshOffers" class="btn primary">↻ Refresh offers</button>
+        </div>
+        <div id="offerStatus" class="muted" style="margin-bottom:10px"></div>
+        <div id="offerGrid" class="offer-grid"></div>
+      </div>
+    </section>
+
+    <section id="watchlistView" hidden>
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Your watchlist</h2>
+            <div class="muted">Saved locally on this device.</div>
+          </div>
+          <button id="clearWatchlist" class="btn">Clear</button>
+        </div>
+        <div id="watchlistTable"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">
+    V5 • Prices may be delayed. This app never places trades or moves money.
+  </div>
 </div>
 
 <dialog id="settingsDialog">
   <form method="dialog">
     <h2>Settings</h2>
-    <p class="muted">Your live offer feed normally stays on the current GitHub repository.</p>
-    <label><strong>offers.json URL</strong></label>
-    <input id="feedUrl" type="url" placeholder="https://raw.githubusercontent.com/..." />
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap">
-      <button value="cancel">Cancel</button>
-      <button id="saveSettingsBtn" class="primary" value="default">Save</button>
+    <div class="settings-grid">
+      <div class="field">
+        <label>Offer feed URL (leave blank to use local offers.json)</label>
+        <input id="offerFeedUrl" type="url" placeholder="https://raw.githubusercontent.com/..." />
+      </div>
+      <div class="field">
+        <label>Price feed URL (leave blank to use local market_data.json)</label>
+        <input id="marketFeedUrl" type="url" placeholder="https://raw.githubusercontent.com/..." />
+      </div>
+      <div class="muted">
+        The GitHub Pages version normally works best with both fields blank because it reads the repository files directly.
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" value="cancel">Cancel</button>
+        <button id="saveSettings" class="btn primary" value="default">Save</button>
+      </div>
     </div>
   </form>
 </dialog>
 
 <script>
-let offers = [];
-let market = { updated_at: null, stocks: [] };
-let selectedTicker = null;
-
 const $ = id => document.getElementById(id);
+let market = {updated_at:null,stocks:[]};
+let offers = [];
+let selectedTicker = null;
+let chartRange = 22;
+let watchlist = new Set(JSON.parse(localStorage.getItem("v5Watchlist") || "[]"));
 
-function escapeHtml(s){
-  return String(s ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+function esc(v){
+  return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
     .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
-function isZero(o){
-  const r=String(o["Requirement"]||"").toLowerCase();
-  return r.startsWith("$0")||r.includes("no deposit");
+function money(v){
+  const n=Number(v); if(!Number.isFinite(n)) return "—";
+  if(Math.abs(n)>=1e12) return "$"+(n/1e12).toFixed(2)+"T";
+  if(Math.abs(n)>=1e9) return "$"+(n/1e9).toFixed(2)+"B";
+  if(Math.abs(n)>=1e6) return "$"+(n/1e6).toFixed(1)+"M";
+  return "$"+n.toFixed(n<10?3:2);
 }
-function money(n){
-  return Number.isFinite(Number(n)) ? "$"+Number(n).toFixed(2) : "—";
+function compact(v){
+  const n=Number(v); if(!Number.isFinite(n)) return "—";
+  return Intl.NumberFormat("en-US",{notation:"compact",maximumFractionDigits:1}).format(n);
 }
-function pct(n){
-  const x=Number(n);
-  if(!Number.isFinite(x)) return "—";
-  return (x>=0?"+":"")+x.toFixed(2)+"%";
+function pct(v){
+  const n=Number(v); if(!Number.isFinite(n)) return "—";
+  return (n>=0?"+":"")+n.toFixed(2)+"%";
+}
+function isZeroOffer(o){
+  const s=String(o["Requirement"]||"").toLowerCase();
+  return s.startsWith("$0") || s.includes("no deposit");
+}
+function isStockReward(o){
+  return /stock|etf/i.test(String(o["Reward"]||"")) || /stock|etf/i.test(String(o["Offer"]||""));
 }
 
-function renderOffers(){
-  const mode=$("offerFilter").value;
-  let shown=offers.filter(o=>mode==="zero"?isZero(o):mode==="new"?!!o["New"]:true);
-  shown.sort((a,b)=>(!!b["New"]-!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0)));
-  $("offersCount").textContent=offers.length;
-  $("zeroCount").textContent=offers.filter(isZero).length;
-  $("newCount").textContent=offers.filter(o=>!!o["New"]).length;
-  if(!shown.length){ $("offerCards").innerHTML='<div class="empty">No offers match this filter.</div>'; return; }
-  $("offerCards").innerHTML=shown.map(o=>{
-    const score=Math.max(0,Math.min(100,Number(o["Hunter Score"]||0)));
-    const url=/^https?:\/\//i.test(o["Source URL"]||"")?o["Source URL"]:"#";
-    return `<article class="card">
-      <div>${o["New"]?'<span class="pill new">NEW</span>':""}${isZero(o)?'<span class="pill zero">$0 DEPOSIT</span>':""}</div>
-      <h3>${escapeHtml(o["Broker"])}</h3>
-      <p><strong>${escapeHtml(o["Offer"])}</strong></p>
-      <p>🎁 ${escapeHtml(o["Reward"])}</p>
-      <p>📌 ${escapeHtml(o["Requirement"])}</p>
-      <p>🟢 ${escapeHtml(o["Status"])}</p>
-      <div>Hunter score: <strong>${score}/100</strong><progress value="${score}" max="100"></progress></div>
-      <p class="muted">${escapeHtml(o["Why"])}</p>
-      <p><a href="${escapeHtml(url)}" target="_blank" rel="noopener">Open official source ↗</a></p>
-    </article>`;
-  }).join("");
+function scoreStock(s){
+  let score=0;
+  const p=Number(s.price)||0, ch=Number(s.change_pct)||0, vol=Number(s.volume)||0;
+  const avg=Number(s.avg_volume_20d)||0, cap=Number(s.market_cap)||0;
+  if(p>0 && p<=10) score+=25; else if(p<=20) score+=20; else if(p<=50) score+=12;
+  if(cap>=1e10) score+=22; else if(cap>=1e9) score+=17; else if(cap>=3e8) score+=9;
+  if(vol>=5e6) score+=18; else if(vol>=1e6) score+=14; else if(vol>=2e5) score+=7;
+  if(avg>0 && vol/avg>=1.5) score+=10; else if(avg>0 && vol/avg>=1.0) score+=6;
+  if(ch>=0 && ch<=6) score+=15; else if(ch>6 && ch<=12) score+=9; else if(ch<0 && ch>=-3) score+=6;
+  const h=s.history||[];
+  if(h.length>=22){
+    const a=Number(h[h.length-22].close), b=Number(h[h.length-1].close);
+    if(a>0){ const r=(b-a)/a*100; if(r>0 && r<=15) score+=10; else if(r>15) score+=5; }
+  }
+  return Math.max(0,Math.min(100,Math.round(score)));
 }
+function saveWatchlist(){
+  localStorage.setItem("v5Watchlist",JSON.stringify([...watchlist]));
+}
+function toggleWatch(ticker){
+  if(watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
+  saveWatchlist(); renderStocks(); renderWatchlist();
+}
+
+function switchView(view){
+  ["home","stocks","offers","watchlist"].forEach(v=>{
+    $(v+"View").hidden=v!==view;
+  });
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  if(view==="stocks") renderStocks();
+  if(view==="offers") renderOffers();
+  if(view==="watchlist") renderWatchlist();
+}
+
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));
+document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.jump)));
 
 async function refreshOffers(){
-  const custom=localStorage.getItem("hunterFeedUrl");
-  const url=custom || "./offers.json";
-  $("offerStatus").textContent="Refreshing…";
+  const url=localStorage.getItem("v5OfferFeed") || "./offers.json";
+  $("offerStatus").textContent="Refreshing offers…";
   try{
     const r=await fetch(url,{cache:"no-store"});
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     const data=await r.json();
-    if(!Array.isArray(data)) throw new Error("Feed is not an array");
+    if(!Array.isArray(data)) throw new Error("Offer feed is not an array");
     offers=data;
     $("offerStatus").textContent=`Updated ${new Date().toLocaleString()}`;
-    renderOffers();
+    notifyNewOffers();
+    renderOffers(); renderHome();
   }catch(e){
-    $("offerStatus").textContent=`Could not refresh offers: ${e.message}`;
+    $("offerStatus").textContent=`Offer refresh failed: ${e.message}`;
   }
 }
 
+async function refreshStocks(){
+  const url=localStorage.getItem("v5MarketFeed") || "./market_data.json";
+  $("stockStatus").textContent="Refreshing stock prices…";
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    if(!Array.isArray(data.stocks)) throw new Error("Price feed is invalid");
+    market=data;
+    $("stockStatus").textContent=data.updated_at
+      ? `Price feed updated ${new Date(data.updated_at).toLocaleString()}`
+      : "Price feed loaded";
+    fillSectors(); renderStocks(); renderHome(); renderWatchlist();
+  }catch(e){
+    $("stockStatus").textContent=`Price refresh failed: ${e.message}`;
+  }
+}
+
+function notifyNewOffers(){
+  if(!("Notification" in window) || Notification.permission!=="granted") return;
+  const notified=new Set(JSON.parse(localStorage.getItem("v5NotifiedOffers")||"[]"));
+  const fresh=offers.filter(o=>o["New"] && o.id && !notified.has(o.id));
+  fresh.slice(0,4).forEach(o=>{
+    try{
+      new Notification(`New offer: ${o["Broker"]}`,{
+        body:`${o["Offer"]} — ${o["Reward"]}`,
+        icon:"icon-192.png"
+      });
+      notified.add(o.id);
+    }catch{}
+  });
+  localStorage.setItem("v5NotifiedOffers",JSON.stringify([...notified]));
+}
+
+$("notifyBtn").addEventListener("click",async()=>{
+  if(!("Notification" in window)){ alert("Browser notifications are not supported here."); return; }
+  const permission=await Notification.requestPermission();
+  $("notifyBtn").textContent=permission==="granted"?"🔔 Alerts enabled":"🔕 Alerts blocked";
+  if(permission==="granted") notifyNewOffers();
+});
+
+function renderHome(){
+  const stocks=market.stocks||[];
+  $("homeTracked").textContent=stocks.length||"—";
+  $("homeUnder20").textContent=stocks.filter(s=>Number(s.price)<=20).length;
+  $("homeOffers").textContent=offers.length;
+  $("homeNew").textContent=offers.filter(o=>o["New"]).length;
+
+  const candidates=[...stocks]
+    .filter(s=>Number(s.price)>0 && Number(s.price)<=50)
+    .map(s=>({...s,_score:scoreStock(s)}))
+    .sort((a,b)=>b._score-a._score)
+    .slice(0,6);
+
+  if(!candidates.length){
+    $("candidateTable").innerHTML='<div class="empty">Run the price workflow to populate research candidates.</div>';
+  }else{
+    $("candidateTable").innerHTML=`<table class="table">
+      <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Volume</th><th>Score</th></tr></thead>
+      <tbody>${candidates.map(s=>`<tr>
+        <td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></td>
+        <td>${money(s.price)}</td>
+        <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
+        <td>${compact(s.volume)}</td>
+        <td class="score">${s._score}/100</td>
+      </tr>`).join("")}</tbody>
+    </table>`;
+  }
+
+  const latest=[...offers].sort((a,b)=>(!!b["New"]-!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0))).slice(0,4);
+  $("homeOffersList").innerHTML=latest.length?latest.map(o=>`
+    <div class="card" style="margin-bottom:9px">
+      <div>${o["New"]?'<span class="pill green">NEW</span>':""}${isZeroOffer(o)?'<span class="pill yellow">$0 DEPOSIT</span>':""}</div>
+      <strong>${esc(o["Broker"])}</strong>
+      <div>${esc(o["Reward"])}</div>
+      <div class="muted">${esc(o["Requirement"])}</div>
+    </div>`).join(""):'<div class="empty">No offers loaded yet.</div>';
+}
+
+function fillSectors(){
+  const current=$("sectorFilter").value;
+  const sectors=[...new Set((market.stocks||[]).map(s=>s.sector).filter(Boolean))].sort();
+  $("sectorFilter").innerHTML='<option value="all">All sectors</option>'+sectors.map(s=>`<option>${esc(s)}</option>`).join("");
+  if(sectors.includes(current)) $("sectorFilter").value=current;
+}
+
 function filteredStocks(){
-  const max=Number($("priceFilter").value);
-  let rows=(market.stocks||[]).filter(s=>Number(s.price)<=max && Number(s.price)>0);
+  const q=$("stockSearch").value.trim().toLowerCase();
+  const max=Number($("maxPrice").value);
+  const sector=$("sectorFilter").value;
+  const minVol=Number($("volumeFilter").value);
+  let rows=(market.stocks||[]).filter(s=>{
+    const text=(String(s.ticker)+" "+String(s.name||"")).toLowerCase();
+    return (!q || text.includes(q)) &&
+      Number(s.price)>0 && Number(s.price)<=max &&
+      (sector==="all" || s.sector===sector) &&
+      Number(s.volume||0)>=minVol;
+  }).map(s=>({...s,_score:scoreStock(s)}));
+
   const sort=$("stockSort").value;
-  if(sort==="price") rows.sort((a,b)=>a.price-b.price);
-  if(sort==="change") rows.sort((a,b)=>(b.change_pct||0)-(a.change_pct||0));
-  if(sort==="ticker") rows.sort((a,b)=>String(a.ticker).localeCompare(String(b.ticker)));
+  rows.sort((a,b)=>{
+    if(sort==="price") return a.price-b.price;
+    if(sort==="gain") return (b.change_pct||0)-(a.change_pct||0);
+    if(sort==="volume") return (b.volume||0)-(a.volume||0);
+    if(sort==="marketcap") return (b.market_cap||0)-(a.market_cap||0);
+    return b._score-a._score;
+  });
   return rows;
 }
 
 function renderStocks(){
   const rows=filteredStocks();
-  $("stockCount").textContent=rows.length;
-  $("cheapestPrice").textContent=rows.length?money(Math.min(...rows.map(x=>x.price))):"—";
-  $("marketUpdated").textContent=market.updated_at ? new Date(market.updated_at).toLocaleDateString() : "—";
+  $("stockCount").textContent=`${rows.length} matching stocks`;
   if(!rows.length){
-    $("stockList").innerHTML='<div class="empty">No tracked stocks are below that price right now.</div>';
-    clearChart();
-    return;
+    $("stockList").innerHTML='<div class="empty">No tracked stocks match these filters.</div>';
+    clearChart(); return;
   }
-  if(!rows.some(x=>x.ticker===selectedTicker)) selectedTicker=rows[0].ticker;
-  $("stockList").innerHTML=rows.map(s=>{
-    const cls=Number(s.change_pct)>=0?"up":"down";
-    return `<button class="stock-row ${s.ticker===selectedTicker?"active":""}" data-ticker="${escapeHtml(s.ticker)}">
-      <span><strong>${escapeHtml(s.ticker)}</strong><br><small>${escapeHtml(s.name||"")}</small></span>
-      <span style="text-align:right"><strong>${money(s.price)}</strong><br><small class="${cls}">${pct(s.change_pct)}</small></span>
-    </button>`;
-  }).join("");
-  document.querySelectorAll(".stock-row").forEach(btn=>{
-    btn.addEventListener("click",()=>{ selectedTicker=btn.dataset.ticker; renderStocks(); drawSelected(); });
-  });
+  if(!rows.some(s=>s.ticker===selectedTicker)) selectedTicker=rows[0].ticker;
+
+  $("stockList").innerHTML=rows.map(s=>`
+    <div class="stock-row ${selectedTicker===s.ticker?"active":""}">
+      <button class="star ${watchlist.has(s.ticker)?"on":""}" data-star="${esc(s.ticker)}" title="Watchlist">★</button>
+      <button class="stock-main" data-select="${esc(s.ticker)}">
+        <strong>${esc(s.ticker)}</strong>
+        <div class="muted">${esc(s.name||"")}</div>
+        <div><span class="pill">${esc(s.sector||"Unknown")}</span><span class="pill">${s._score}/100</span></div>
+      </button>
+      <button class="stock-main stock-price" data-select="${esc(s.ticker)}">
+        <strong>${money(s.price)}</strong>
+        <div class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</div>
+        <div class="muted">${compact(s.volume)} vol</div>
+      </button>
+    </div>`).join("");
+
+  document.querySelectorAll("[data-star]").forEach(b=>b.addEventListener("click",()=>toggleWatch(b.dataset.star)));
+  document.querySelectorAll("[data-select]").forEach(b=>b.addEventListener("click",()=>{
+    selectedTicker=b.dataset.select; renderStocks(); drawSelected();
+  }));
   drawSelected();
 }
 
 function clearChart(){
-  const c=$("priceChart"),ctx=c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-  $("chartTitle").innerHTML="<strong>Select a stock</strong>";
-  $("chartMeta").textContent="";
-  $("chartRange").textContent="";
+  const c=$("priceChart"),ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height);
+  $("chartTitle").textContent="Select a stock"; $("chartSubtitle").textContent=""; $("stockDetails").innerHTML="";
 }
 
 function drawSelected(){
   const s=(market.stocks||[]).find(x=>x.ticker===selectedTicker);
   if(!s){ clearChart(); return; }
-  $("chartTitle").innerHTML=`<strong>${escapeHtml(s.ticker)} — ${escapeHtml(s.name||"")}</strong>`;
-  $("chartMeta").textContent=`Current ${money(s.price)} • Daily ${pct(s.change_pct)}`;
+  $("chartTitle").textContent=`${s.ticker} — ${s.name||""}`;
+  $("chartSubtitle").textContent=`${money(s.price)} • ${pct(s.change_pct)} today • ${s.sector||"Unknown sector"}`;
+  $("selectedScore").innerHTML=`<span class="pill ${scoreStock(s)>=70?"green":"yellow"}">Research ${scoreStock(s)}/100</span>`;
 
-  const hist=(s.history||[]).filter(p=>Number.isFinite(Number(p.close)));
-  if(hist.length<2){ $("chartRange").textContent="Not enough history for chart."; return; }
-
+  const full=(s.history||[]).filter(p=>Number.isFinite(Number(p.close)));
+  const hist=full.slice(-Math.min(chartRange,full.length));
   const c=$("priceChart"),ctx=c.getContext("2d");
-  const rect=c.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  c.width=Math.max(600,Math.floor(rect.width*dpr));
-  c.height=Math.floor(300*dpr);
+  const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  c.width=Math.max(600,Math.floor(rect.width*dpr)); c.height=Math.max(260,Math.floor(rect.height*dpr));
   ctx.clearRect(0,0,c.width,c.height);
+  if(hist.length<2) return;
 
-  const pad=42*dpr;
-  const vals=hist.map(p=>Number(p.close));
-  let min=Math.min(...vals), max=Math.max(...vals);
-  if(max===min){ max+=1; min-=1; }
-  const x=i=>pad + i*(c.width-2*pad)/(hist.length-1);
-  const y=v=>pad + (max-v)*(c.height-2*pad)/(max-min);
+  const vals=hist.map(p=>Number(p.close)), min=Math.min(...vals), max=Math.max(...vals);
+  const range=(max-min)||1, pad=46*dpr;
+  const x=i=>pad+i*(c.width-2*pad)/(hist.length-1);
+  const y=v=>pad+(max-v)*(c.height-2*pad)/range;
 
-  ctx.lineWidth=1*dpr;
-  ctx.globalAlpha=.22;
-  for(let i=0;i<5;i++){
-    const gy=pad+i*(c.height-2*pad)/4;
-    ctx.beginPath(); ctx.moveTo(pad,gy); ctx.lineTo(c.width-pad,gy); ctx.stroke();
-  }
-  ctx.globalAlpha=1;
-  ctx.lineWidth=2*dpr;
-  ctx.beginPath();
-  hist.forEach((p,i)=>{ const px=x(i),py=y(Number(p.close)); i?ctx.lineTo(px,py):ctx.moveTo(px,py); });
-  ctx.stroke();
+  ctx.strokeStyle="rgba(148,163,184,.18)"; ctx.lineWidth=1*dpr;
+  for(let i=0;i<5;i++){ const gy=pad+i*(c.height-2*pad)/4; ctx.beginPath();ctx.moveTo(pad,gy);ctx.lineTo(c.width-pad,gy);ctx.stroke(); }
 
-  ctx.font=`${12*dpr}px system-ui`;
-  ctx.fillText("$"+max.toFixed(2),4*dpr,(pad+5*dpr));
-  ctx.fillText("$"+min.toFixed(2),4*dpr,(c.height-pad+5*dpr));
-  $("chartRange").textContent=`${hist[0].date} → ${hist[hist.length-1].date} • 30 trading-day history`;
+  const rising=vals[vals.length-1]>=vals[0];
+  ctx.strokeStyle=rising?"#4ade80":"#f87171"; ctx.lineWidth=2.5*dpr;
+  ctx.beginPath(); hist.forEach((p,i)=>{const px=x(i),py=y(Number(p.close));i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();
+
+  ctx.fillStyle="#94a3b8"; ctx.font=`${11*dpr}px system-ui`;
+  ctx.fillText("$"+max.toFixed(2),4*dpr,pad+4*dpr); ctx.fillText("$"+min.toFixed(2),4*dpr,c.height-pad+4*dpr);
+  ctx.fillText(hist[0].date,pad,c.height-10*dpr);
+  const endText=hist[hist.length-1].date; const w=ctx.measureText(endText).width;
+  ctx.fillText(endText,c.width-pad-w,c.height-10*dpr);
+
+  $("stockDetails").innerHTML=`
+    <div class="mini"><div class="k">Market cap</div><div class="v">${money(s.market_cap)}</div></div>
+    <div class="mini"><div class="k">Daily volume</div><div class="v">${compact(s.volume)}</div></div>
+    <div class="mini"><div class="k">20-day avg volume</div><div class="v">${compact(s.avg_volume_20d)}</div></div>
+    <div class="mini"><div class="k">Sector</div><div class="v">${esc(s.sector||"Unknown")}</div></div>`;
 }
 
-async function refreshStocks(){
-  $("stockStatus").textContent="Refreshing prices…";
-  try{
-    const r=await fetch("./market_data.json",{cache:"no-store"});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data=await r.json();
-    if(!Array.isArray(data.stocks)) throw new Error("market_data.json is invalid");
-    market=data;
-    $("stockStatus").textContent=`Price feed updated ${new Date(data.updated_at).toLocaleString()}`;
-    renderStocks();
-  }catch(e){
-    $("stockStatus").textContent=`Could not load prices: ${e.message}. Run the GitHub price workflow first.`;
-  }
-}
-
-document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  btn.classList.add("active");
-  $("offersTab").hidden=btn.dataset.tab!=="offers";
-  $("stocksTab").hidden=btn.dataset.tab!=="stocks";
-  if(btn.dataset.tab==="stocks" && !(market.stocks||[]).length) refreshStocks();
+document.querySelectorAll("[data-range]").forEach(b=>b.addEventListener("click",()=>{
+  chartRange=Number(b.dataset.range);
+  document.querySelectorAll("[data-range]").forEach(x=>x.classList.toggle("active",x===b));
+  drawSelected();
 }));
+["stockSearch","maxPrice","sectorFilter","volumeFilter","stockSort"].forEach(id=>{
+  $(id).addEventListener(id==="stockSearch"?"input":"change",renderStocks);
+});
+$("refreshStocks").addEventListener("click",refreshStocks);
 
+function renderOffers(){
+  const mode=$("offerFilter").value, q=$("offerSearch").value.trim().toLowerCase();
+  let rows=offers.filter(o=>{
+    const search=(String(o["Broker"])+" "+String(o["Offer"])+" "+String(o["Reward"])).toLowerCase();
+    if(q && !search.includes(q)) return false;
+    if(mode==="zero") return isZeroOffer(o);
+    if(mode==="stock") return isStockReward(o);
+    if(mode==="new") return !!o["New"];
+    return true;
+  }).sort((a,b)=>(!!b["New"]-!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0)));
+
+  $("offerGrid").innerHTML=rows.length?rows.map(o=>`
+    <article class="offer-card">
+      <div>${o["New"]?'<span class="pill green">NEW</span>':""}
+        ${isZeroOffer(o)?'<span class="pill yellow">$0 DEPOSIT</span>':""}
+        ${isStockReward(o)?'<span class="pill">STOCK/ETF</span>':""}</div>
+      <h3>${esc(o["Broker"])}</h3>
+      <strong>${esc(o["Offer"])}</strong>
+      <p>🎁 ${esc(o["Reward"])}</p>
+      <p>📌 ${esc(o["Requirement"])}</p>
+      <p>🟢 ${esc(o["Status"])}</p>
+      <div class="muted">${esc(o["Why"])}</div>
+      <p>Hunter score: <strong>${Number(o["Hunter Score"]||0)}/100</strong></p>
+      <progress value="${Number(o["Hunter Score"]||0)}" max="100"></progress>
+      <p><a href="${esc(o["Source URL"]||"#")}" target="_blank" rel="noopener">Open official source ↗</a></p>
+    </article>`).join(""):'<div class="empty">No offers match these filters.</div>';
+}
 $("offerFilter").addEventListener("change",renderOffers);
-$("refreshOffersBtn").addEventListener("click",refreshOffers);
-$("priceFilter").addEventListener("change",renderStocks);
-$("stockSort").addEventListener("change",renderStocks);
-$("refreshStocksBtn").addEventListener("click",refreshStocks);
+$("offerSearch").addEventListener("input",renderOffers);
+$("refreshOffers").addEventListener("click",refreshOffers);
+
+function renderWatchlist(){
+  const rows=(market.stocks||[]).filter(s=>watchlist.has(s.ticker)).map(s=>({...s,_score:scoreStock(s)})).sort((a,b)=>b._score-a._score);
+  if(!rows.length){ $("watchlistTable").innerHTML='<div class="empty">Tap ★ next to a stock to save it here.</div>'; return; }
+  $("watchlistTable").innerHTML=`<table class="table"><thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Sector</th><th>Score</th><th></th></tr></thead>
+    <tbody>${rows.map(s=>`<tr><td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.name||"")}</div></td>
+      <td>${money(s.price)}</td><td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
+      <td>${esc(s.sector||"Unknown")}</td><td>${s._score}/100</td><td><button class="btn" data-remove="${esc(s.ticker)}">Remove</button></td></tr>`).join("")}</tbody></table>`;
+  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>toggleWatch(b.dataset.remove)));
+}
+$("clearWatchlist").addEventListener("click",()=>{watchlist.clear();saveWatchlist();renderWatchlist();renderStocks();});
 
 $("settingsBtn").addEventListener("click",()=>{
-  $("feedUrl").value=localStorage.getItem("hunterFeedUrl")||"";
+  $("offerFeedUrl").value=localStorage.getItem("v5OfferFeed")||"";
+  $("marketFeedUrl").value=localStorage.getItem("v5MarketFeed")||"";
   $("settingsDialog").showModal();
 });
-$("saveSettingsBtn").addEventListener("click",()=>{
-  const u=$("feedUrl").value.trim();
-  if(u) localStorage.setItem("hunterFeedUrl",u);
-  else localStorage.removeItem("hunterFeedUrl");
-  setTimeout(refreshOffers,50);
+$("saveSettings").addEventListener("click",()=>{
+  const a=$("offerFeedUrl").value.trim(),b=$("marketFeedUrl").value.trim();
+  a?localStorage.setItem("v5OfferFeed",a):localStorage.removeItem("v5OfferFeed");
+  b?localStorage.setItem("v5MarketFeed",b):localStorage.removeItem("v5MarketFeed");
+  setTimeout(()=>{refreshOffers();refreshStocks();},60);
 });
 
-refreshOffers();
+if("Notification" in window && Notification.permission==="granted") $("notifyBtn").textContent="🔔 Alerts enabled";
 
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
 }
+
+Promise.all([refreshOffers(),refreshStocks()]).then(renderHome);
 </script>
 </body>
 </html>
