@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1220" />
-  <title>Marcelo Stock Hunter V5</title>
+  <title>Marcelo Stock Hunter V5.2</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <style>
@@ -106,6 +106,22 @@
       .detail-grid{grid-template-columns:1fr 1fr}
       .brand h1{font-size:1.05rem}
     }
+
+    .quick-filters{display:flex;gap:7px;flex-wrap:wrap;margin:-2px 0 12px}
+    .quick-filters .active{background:#1d4ed8;border-color:#3b82f6}
+    .prediction-box{display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:9px;margin:8px 0 12px;
+      background:linear-gradient(90deg,rgba(59,130,246,.10),rgba(34,197,94,.06));border:1px solid var(--line);border-radius:13px;padding:11px}
+    .prediction-box .pred-main{font-weight:850;font-size:1.03rem}
+    .prediction-box .pred-label{color:var(--muted);font-size:.72rem;margin-bottom:2px}
+    .prediction-box .bull{color:#4ade80}.prediction-box .bear{color:#f87171}.prediction-box .neutral{color:#facc15}
+    .prediction-note{grid-column:1/-1;color:var(--muted);font-size:.75rem;border-top:1px solid var(--line);padding-top:7px}
+    .outlook-pill{display:inline-flex;border-radius:999px;padding:3px 7px;font-size:.68rem;font-weight:850;margin-left:4px}
+    .outlook-pill.bull{background:rgba(34,197,94,.16);color:#bbf7d0}
+    .outlook-pill.bear{background:rgba(239,68,68,.15);color:#fecaca}
+    .outlook-pill.neutral{background:rgba(250,204,21,.14);color:#fef08a}
+    .search-hint{font-size:.72rem;color:var(--muted)}
+    @media(max-width:650px){.prediction-box{grid-template-columns:1fr}.prediction-note{grid-column:1}}
+
   </style>
 </head>
 <body>
@@ -114,8 +130,8 @@
     <div class="brand">
       <img src="icon-192.png" alt="">
       <div>
-        <h1>Marcelo Stock Hunter V5</h1>
-        <small>Promotions • stocks • charts • watchlist</small>
+        <h1>Marcelo Stock Hunter V5.2</h1>
+        <small>Promotions • fast search • charts • trend outlook • watchlist</small>
       </div>
     </div>
     <div class="top-actions">
@@ -125,7 +141,7 @@
   </header>
 
   <div class="notice">
-    Research tool only. Low share price does not mean a company is undervalued, and the Research Score is a sorting heuristic—not a prediction or recommendation.
+    Research tool only. Low share price does not mean a company is undervalued. The Research Score and Trend Outlook are historical-data heuristics—not guarantees, price targets, or recommendations.
   </div>
 
   <nav class="nav">
@@ -167,17 +183,17 @@
         <div class="toolbar">
           <div class="field">
             <label>Search tracked stocks</label>
-            <input id="stockSearch" placeholder="Ticker or company" />
+            <input id="stockSearch" placeholder="Ticker, company or sector — press / to search" />
           </div>
           <div class="field">
             <label>Max share price</label>
             <select id="maxPrice">
               <option value="5">Under $5</option>
               <option value="10">Under $10</option>
-              <option value="20" selected>Under $20</option>
+              <option value="20">Under $20</option>
               <option value="50">Under $50</option>
               <option value="100">Under $100</option>
-              <option value="999999">Any price</option>
+              <option value="999999" selected>Any price</option>
             </select>
           </div>
           <div class="field">
@@ -187,10 +203,10 @@
           <div class="field">
             <label>Min daily volume</label>
             <select id="volumeFilter">
-              <option value="0">Any volume</option>
+              <option value="0" selected>Any volume</option>
               <option value="100000">100K+</option>
               <option value="500000">500K+</option>
-              <option value="1000000" selected>1M+</option>
+              <option value="1000000">1M+</option>
               <option value="5000000">5M+</option>
             </select>
           </div>
@@ -198,6 +214,7 @@
             <label>Sort</label>
             <select id="stockSort">
               <option value="score">Research score</option>
+              <option value="outlook">Trend outlook</option>
               <option value="price">Lowest price</option>
               <option value="gain">Daily gain</option>
               <option value="volume">Volume</option>
@@ -205,6 +222,15 @@
             </select>
           </div>
           <button id="refreshStocks" class="btn primary">↻ Refresh prices</button>
+        </div>
+
+        <div class="quick-filters" id="quickFilters">
+          <button class="btn" data-quick="all">All tracked</button>
+          <button class="btn" data-quick="under10">Under $10</button>
+          <button class="btn" data-quick="gainers">Gainers</button>
+          <button class="btn" data-quick="active">Most active</button>
+          <button class="btn" data-quick="bullish">Bullish outlook</button>
+          <button class="btn" data-quick="watchlist">Watchlist</button>
         </div>
 
         <div id="stockStatus" class="muted" style="margin-bottom:10px"></div>
@@ -223,6 +249,7 @@
               </div>
               <div id="selectedScore"></div>
             </div>
+            <div id="predictionBox" class="prediction-box" hidden></div>
             <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
             <div class="range-buttons">
               <button class="btn" data-range="5">1W</button>
@@ -274,7 +301,7 @@
   </main>
 
   <div class="footer">
-    V5 • Prices may be delayed. This app never places trades or moves money.
+    V5.2 • Prices may be delayed. Trend Outlook uses historical price/volume only. This app never places trades or moves money.
   </div>
 </div>
 
@@ -352,6 +379,82 @@ function scoreStock(s){
   }
   return Math.max(0,Math.min(100,Math.round(score)));
 }
+
+
+function linearSlope(values){
+  const n=values.length;
+  if(n<2) return 0;
+  let sx=0,sy=0,sxy=0,sxx=0;
+  for(let i=0;i<n;i++){ sx+=i; sy+=values[i]; sxy+=i*values[i]; sxx+=i*i; }
+  const den=n*sxx-sx*sx;
+  return den ? (n*sxy-sx*sy)/den : 0;
+}
+
+function stdev(values){
+  if(values.length<2) return 0;
+  const mean=values.reduce((a,b)=>a+b,0)/values.length;
+  return Math.sqrt(values.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(values.length-1));
+}
+
+function trendOutlook(s){
+  const history=(s.history||[]).map(p=>Number(p.close)).filter(Number.isFinite);
+  const price=Number(s.price)||history.at(-1)||0;
+  if(history.length<12 || price<=0){
+    return {label:'Not enough data', key:'neutral', strength:0, low:price, high:price, projected:price, score:0};
+  }
+
+  const short=history.slice(-20);
+  const medium=history.slice(-60);
+  const shortSlope=linearSlope(short)/price*100;
+  const mediumSlope=linearSlope(medium)/price*100;
+  const returns=[];
+  for(let i=Math.max(1,history.length-30);i<history.length;i++){
+    if(history[i-1]>0) returns.push((history[i]-history[i-1])/history[i-1]);
+  }
+  const vol=stdev(returns);
+  const volRatio=(Number(s.avg_volume_20d)||0)>0 ? (Number(s.volume)||0)/(Number(s.avg_volume_20d)||1) : 1;
+  const daily=Number(s.change_pct)||0;
+
+  // A bounded directional signal from recent/medium price trend, daily move, and relative volume.
+  let signal = shortSlope*13 + mediumSlope*7 + Math.max(-6,Math.min(6,daily))*0.9;
+  if(volRatio>1.4) signal *= 1.10;
+  if(volRatio<0.65) signal *= 0.92;
+  signal=Math.max(-100,Math.min(100,signal));
+
+  let label='Neutral', key='neutral';
+  if(signal>=16){label='Bullish';key='bull';}
+  else if(signal<=-16){label='Bearish';key='bear';}
+
+  const strength=Math.min(88,Math.max(35,Math.round(48+Math.abs(signal)*0.38-(vol*100)*1.6)));
+  const projected=Math.max(0.01, price*(1 + (shortSlope*5)/100));
+  const band=Math.max(price*0.012, price*vol*Math.sqrt(5)*1.25);
+  return {
+    label,key,strength,
+    projected,
+    low:Math.max(0.01,projected-band),
+    high:projected+band,
+    score:signal,
+    shortSlope,
+    mediumSlope
+  };
+}
+
+function normalizedSearch(s){
+  return `${s.ticker||''} ${s.name||''} ${s.sector||''}`.toLowerCase();
+}
+
+function decorateStocks(stocks){
+  return (stocks||[]).map(s=>({
+    ...s,
+    _score:scoreStock(s),
+    _outlook:trendOutlook(s),
+    _search:normalizedSearch(s)
+  }));
+}
+
+let decoratedStocks=[];
+let quickMode='all';
+let searchTimer=null;
 function saveWatchlist(){
   localStorage.setItem("v5Watchlist",JSON.stringify([...watchlist]));
 }
@@ -399,6 +502,7 @@ async function refreshStocks(){
     const data=await r.json();
     if(!Array.isArray(data.stocks)) throw new Error("Price feed is invalid");
     market=data;
+    decoratedStocks=decorateStocks(data.stocks);
     $("stockStatus").textContent=data.updated_at
       ? `Price feed updated ${new Date(data.updated_at).toLocaleString()}`
       : "Price feed loaded";
@@ -432,7 +536,7 @@ $("notifyBtn").addEventListener("click",async()=>{
 });
 
 function renderHome(){
-  const stocks=market.stocks||[];
+  const stocks=decoratedStocks.length ? decoratedStocks : decorateStocks(market.stocks||[]);
   $("homeTracked").textContent=stocks.length||"—";
   $("homeUnder20").textContent=stocks.filter(s=>Number(s.price)<=20).length;
   $("homeOffers").textContent=offers.length;
@@ -440,7 +544,6 @@ function renderHome(){
 
   const candidates=[...stocks]
     .filter(s=>Number(s.price)>0 && Number(s.price)<=50)
-    .map(s=>({...s,_score:scoreStock(s)}))
     .sort((a,b)=>b._score-a._score)
     .slice(0,6);
 
@@ -448,12 +551,12 @@ function renderHome(){
     $("candidateTable").innerHTML='<div class="empty">Run the price workflow to populate research candidates.</div>';
   }else{
     $("candidateTable").innerHTML=`<table class="table">
-      <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Volume</th><th>Score</th></tr></thead>
+      <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Outlook</th><th>Score</th></tr></thead>
       <tbody>${candidates.map(s=>`<tr>
         <td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></td>
         <td>${money(s.price)}</td>
         <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
-        <td>${compact(s.volume)}</td>
+        <td><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span></td>
         <td class="score">${s._score}/100</td>
       </tr>`).join("")}</tbody>
     </table>`;
@@ -471,7 +574,7 @@ function renderHome(){
 
 function fillSectors(){
   const current=$("sectorFilter").value;
-  const sectors=[...new Set((market.stocks||[]).map(s=>s.sector).filter(Boolean))].sort();
+  const sectors=[...new Set((decoratedStocks.length?decoratedStocks:market.stocks||[]).map(s=>s.sector).filter(Boolean))].sort();
   $("sectorFilter").innerHTML='<option value="all">All sectors</option>'+sectors.map(s=>`<option>${esc(s)}</option>`).join("");
   if(sectors.includes(current)) $("sectorFilter").value=current;
 }
@@ -481,16 +584,22 @@ function filteredStocks(){
   const max=Number($("maxPrice").value);
   const sector=$("sectorFilter").value;
   const minVol=Number($("volumeFilter").value);
-  let rows=(market.stocks||[]).filter(s=>{
-    const text=(String(s.ticker)+" "+String(s.name||"")).toLowerCase();
-    return (!q || text.includes(q)) &&
-      Number(s.price)>0 && Number(s.price)<=max &&
-      (sector==="all" || s.sector===sector) &&
-      Number(s.volume||0)>=minVol;
-  }).map(s=>({...s,_score:scoreStock(s)}));
+  let rows=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).filter(s=>{
+    if(q && !s._search.includes(q)) return false;
+    if(!(Number(s.price)>0 && Number(s.price)<=max)) return false;
+    if(sector!=="all" && s.sector!==sector) return false;
+    if(Number(s.volume||0)<minVol) return false;
+    if(quickMode==="under10" && Number(s.price)>10) return false;
+    if(quickMode==="gainers" && Number(s.change_pct)<=0) return false;
+    if(quickMode==="bullish" && s._outlook.key!=="bull") return false;
+    if(quickMode==="watchlist" && !watchlist.has(s.ticker)) return false;
+    return true;
+  });
 
   const sort=$("stockSort").value;
-  rows.sort((a,b)=>{
+  rows=[...rows].sort((a,b)=>{
+    if(quickMode==="active") return (b.volume||0)-(a.volume||0);
+    if(sort==="outlook") return (b._outlook.score||0)-(a._outlook.score||0);
     if(sort==="price") return a.price-b.price;
     if(sort==="gain") return (b.change_pct||0)-(a.change_pct||0);
     if(sort==="volume") return (b.volume||0)-(a.volume||0);
@@ -515,7 +624,7 @@ function renderStocks(){
       <button class="stock-main" data-select="${esc(s.ticker)}">
         <strong>${esc(s.ticker)}</strong>
         <div class="muted">${esc(s.name||"")}</div>
-        <div><span class="pill">${esc(s.sector||"Unknown")}</span><span class="pill">${s._score}/100</span></div>
+        <div><span class="pill">${esc(s.sector||"Unknown")}</span><span class="pill">${s._score}/100</span><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span></div>
       </button>
       <button class="stock-main stock-price" data-select="${esc(s.ticker)}">
         <strong>${money(s.price)}</strong>
@@ -533,15 +642,22 @@ function renderStocks(){
 
 function clearChart(){
   const c=$("priceChart"),ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height);
-  $("chartTitle").textContent="Select a stock"; $("chartSubtitle").textContent=""; $("stockDetails").innerHTML="";
+  $("chartTitle").textContent="Select a stock"; $("chartSubtitle").textContent=""; $("stockDetails").innerHTML=""; $("predictionBox").hidden=true;
 }
 
 function drawSelected(){
-  const s=(market.stocks||[]).find(x=>x.ticker===selectedTicker);
+  const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===selectedTicker);
   if(!s){ clearChart(); return; }
   $("chartTitle").textContent=`${s.ticker} — ${s.name||""}`;
   $("chartSubtitle").textContent=`${money(s.price)} • ${pct(s.change_pct)} today • ${s.sector||"Unknown sector"}`;
-  $("selectedScore").innerHTML=`<span class="pill ${scoreStock(s)>=70?"green":"yellow"}">Research ${scoreStock(s)}/100</span>`;
+  $("selectedScore").innerHTML=`<span class="pill ${s._score>=70?"green":"yellow"}">Research ${s._score}/100</span>`;
+  const pred=s._outlook||trendOutlook(s);
+  $("predictionBox").hidden=false;
+  $("predictionBox").innerHTML=`
+    <div><div class="pred-label">5-trading-day trend outlook</div><div class="pred-main ${pred.key}">${pred.label}</div></div>
+    <div><div class="pred-label">Signal strength</div><div class="pred-main">${pred.strength}/100</div></div>
+    <div><div class="pred-label">Model range</div><div class="pred-main">${money(pred.low)} – ${money(pred.high)}</div></div>
+    <div class="prediction-note">Historical trend/volatility model only. It does not use news, earnings surprises, or future information and should not be treated as a price target.</div>`;
 
   const full=(s.history||[]).filter(p=>Number.isFinite(Number(p.close)));
   const hist=full.slice(-Math.min(chartRange,full.length));
@@ -581,10 +697,31 @@ document.querySelectorAll("[data-range]").forEach(b=>b.addEventListener("click",
   document.querySelectorAll("[data-range]").forEach(x=>x.classList.toggle("active",x===b));
   drawSelected();
 }));
-["stockSearch","maxPrice","sectorFilter","volumeFilter","stockSort"].forEach(id=>{
-  $(id).addEventListener(id==="stockSearch"?"input":"change",renderStocks);
+$("stockSearch").addEventListener("input",()=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(renderStocks,70);
 });
+["maxPrice","sectorFilter","volumeFilter","stockSort"].forEach(id=>$(id).addEventListener("change",renderStocks));
 $("refreshStocks").addEventListener("click",refreshStocks);
+
+document.querySelectorAll("[data-quick]").forEach(b=>b.addEventListener("click",()=>{
+  quickMode=b.dataset.quick;
+  document.querySelectorAll("[data-quick]").forEach(x=>x.classList.toggle("active",x===b));
+  if(quickMode==="all"){ $("maxPrice").value="999999"; $("volumeFilter").value="0"; }
+  if(quickMode==="under10") $("maxPrice").value="10";
+  if(quickMode==="active") $("stockSort").value="volume";
+  if(quickMode==="bullish") $("stockSort").value="outlook";
+  renderStocks();
+}));
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="/" && document.activeElement?.tagName!=="INPUT"){
+    e.preventDefault(); switchView("stocks"); $("stockSearch").focus();
+  }
+  if(e.key==="Escape" && document.activeElement===$("stockSearch")){
+    $("stockSearch").value=""; $("stockSearch").blur(); renderStocks();
+  }
+});
 
 function renderOffers(){
   const mode=$("offerFilter").value, q=$("offerSearch").value.trim().toLowerCase();
@@ -618,7 +755,7 @@ $("offerSearch").addEventListener("input",renderOffers);
 $("refreshOffers").addEventListener("click",refreshOffers);
 
 function renderWatchlist(){
-  const rows=(market.stocks||[]).filter(s=>watchlist.has(s.ticker)).map(s=>({...s,_score:scoreStock(s)})).sort((a,b)=>b._score-a._score);
+  const rows=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).filter(s=>watchlist.has(s.ticker)).sort((a,b)=>b._score-a._score);
   if(!rows.length){ $("watchlistTable").innerHTML='<div class="empty">Tap ★ next to a stock to save it here.</div>'; return; }
   $("watchlistTable").innerHTML=`<table class="table"><thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Sector</th><th>Score</th><th></th></tr></thead>
     <tbody>${rows.map(s=>`<tr><td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.name||"")}</div></td>
