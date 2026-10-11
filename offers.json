@@ -10,9 +10,9 @@
     "Why": "official brokerage source; bank/debit link found without a stated cash deposit; ongoing-offer wording found",
     "Source URL": "https://robinhood.com/us/en/support/articles/open-account-get-free-stock/",
     "First Seen": "2026-10-11T21:17:51+00:00",
-    "Last Seen": "2026-10-11T21:17:51+00:00",
-    "Times Seen": 1,
-    "New": true
+    "Last Seen": "2026-10-11T21:38:24+00:00",
+    "Times Seen": 2,
+    "New": false
   },
   {
     "id": "e517ec124201273fb4e0a779",
@@ -25,9 +25,9 @@
     "Why": "official brokerage source; official free-stock program rules found",
     "Source URL": "https://www.webull.com/help/faq/541-Free-Stock-Allocation-Rules",
     "First Seen": "2026-10-11T21:17:51+00:00",
-    "Last Seen": "2026-10-11T21:17:51+00:00",
-    "Times Seen": 1,
-    "New": true
+    "Last Seen": "2026-10-11T21:38:24+00:00",
+    "Times Seen": 2,
+    "New": false
   },
   {
     "id": "23194bd21d51d4200d287ee4",
@@ -40,8 +40,8 @@
     "Why": "official brokerage source",
     "Source URL": "https://support.sofi.com/hc/en-us/articles/3x-claw-self-directed-investing-promotion",
     "First Seen": "2026-10-11T21:17:51+00:00",
-    "Last Seen": "2026-10-11T21:17:51+00:00",
-    "Times Seen": 1,
-    "New": true
+    "Last Seen": "2026-10-11T21:38:24+00:00",
+    "Times Seen": 2,
+    "New": false
   }
 ]
