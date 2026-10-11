@@ -1,0 +1,33 @@
+name: Check V5 offer alerts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 15 * * *"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build alert summary
+        run: python build_offer_alert.py
+
+      - name: Open GitHub issue when feed contains new offers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -s new_offer_alert.md ]; then
+            gh issue create \
+              --title "🔔 New Stock Hunter offer found" \
+              --body-file new_offer_alert.md
+          else
+            echo "No new offers to alert."
+          fi
