@@ -1,24 +1,46 @@
-# Marcelo Free Stock Hunter — Chromebook V2.1
+# Marcelo Stock Price Upgrade V4
 
-The older V2 relied on Python/Streamlit plus Windows/macOS launcher files. ChromeOS does not normally open those directly.
+This upgrade adds a second section to the existing Chromebook app:
 
-This version fixes that by making the front end a browser app.
+- Low-price stock filters: under $5, $10, $20, or $50.
+- Current share price.
+- Daily percentage move.
+- Sorting by lowest price, biggest daily gain, or ticker.
+- A 30-trading-day line graph for each tracked stock.
+- A separate GitHub Action that updates `market_data.json`.
 
-## Quick test on Chromebook
-1. Unzip the package in the Files app.
-2. Open the `web` folder.
-3. Open `index.html` in Chrome.
-4. The app shows sample data immediately.
+## Files to upload/replace
 
-## Best setup: install it like an app
-Host the `web` folder with GitHub Pages, open the Pages URL in Chrome, then use Chrome's **Install app** or **Create shortcut** option.
+Upload these into the ROOT of the existing GitHub repository:
 
-## Connect the live feed
-In the app, open **Settings** and paste a public `offers.json` URL, for example:
+- `index.html` — replace the old one.
+- `manifest.json` — replace the old one.
+- `update_market_data.py` — new.
+- `market_data.json` — new starter file.
 
-`https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/web/offers.json`
+Create this workflow at:
 
-The Chromebook interface itself needs no Python.
+`.github/workflows/update-market-data.yml`
 
-## Important
-The app is only a promotion finder. Always verify eligibility, expiration, funding requirements, holding periods, withdrawal rules, taxes, and reward odds on the brokerage's official website.
+using the included workflow file.
+
+## After uploading
+
+1. Commit everything to `main`.
+2. Go to GitHub Actions.
+3. Open **Update stock price feed**.
+4. Click **Run workflow**.
+5. Wait for the green check.
+6. Wait for GitHub Pages to redeploy.
+7. Reopen the Chromebook app or refresh it.
+8. Click the new **Low-price stocks** tab.
+
+## Change which stocks are tracked
+
+Open `update_market_data.py` and edit the `TICKERS` list.
+
+The initial list is only a starter watchlist. It is not a recommendation to buy those stocks.
+
+## Data note
+
+This prototype uses the third-party `yfinance` package and may show delayed data. For a commercial app, move to a licensed market-data provider.

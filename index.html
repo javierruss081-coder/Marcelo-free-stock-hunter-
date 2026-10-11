@@ -1,25 +1,338 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827"><title>Marcelo Free Stock Hunter</title>
-<link rel="manifest" href="manifest.json">
-<style>
-body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:#0f172a;color:#e5e7eb}.wrap{max-width:980px;margin:auto;padding:20px}h1{margin-bottom:4px}.muted{color:#94a3b8}.bar,.stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.card,.stat,.notice{background:#111827;border:1px solid #334155;border-radius:16px;padding:14px}.stat{flex:1 1 160px}.stat b{display:block;font-size:1.7rem;margin-top:6px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}button,select,input{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e5e7eb}button{cursor:pointer}.primary{background:#2563eb;border-color:#2563eb;color:#fff}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.75rem;font-weight:700;margin-right:6px;background:#1e3a8a}.green{background:#14532d}.score{margin:8px 0}progress{width:100%}a{color:#60a5fa;font-weight:700}dialog{background:#111827;color:#e5e7eb;border:1px solid #475569;border-radius:16px;width:min(620px,90vw)}dialog input{width:100%;box-sizing:border-box}.row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>Marcelo Free Stock Hunter</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color-scheme: light dark; }
+    body { margin:0; background:Canvas; color:CanvasText; }
+    .wrap { max-width:1100px; margin:0 auto; padding:20px; }
+    .hero,.toolbar,.stats,.tabs { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .hero { justify-content:space-between; align-items:flex-start; }
+    h1 { margin:0 0 5px; }
+    .muted { opacity:.72; }
+    .warning { border:1px solid color-mix(in srgb,orange 55%,transparent); background:color-mix(in srgb,orange 10%,Canvas); padding:12px 14px; border-radius:14px; margin:16px 0; }
+    button,select,input { font:inherit; border-radius:10px; border:1px solid color-mix(in srgb,CanvasText 20%,transparent); padding:10px 12px; background:Canvas; color:CanvasText; }
+    button { cursor:pointer; }
+    button.primary,.tab.active { background:#2563eb; color:white; border-color:#2563eb; }
+    .stats { margin:14px 0; }
+    .stat { flex:1 1 150px; border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:14px; padding:14px; }
+    .stat strong { display:block; font-size:1.6rem; margin-top:4px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:14px; }
+    .card { border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:16px; padding:15px; background:color-mix(in srgb,Canvas 97%,CanvasText); }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:.78rem; font-weight:700; margin:0 6px 6px 0; background:color-mix(in srgb,#2563eb 16%,Canvas); }
+    .pill.new { background:color-mix(in srgb,#16a34a 18%,Canvas); }
+    .pill.zero { background:color-mix(in srgb,#22c55e 18%,Canvas); }
+    .pill.low { background:color-mix(in srgb,#f59e0b 20%,Canvas); }
+    progress { width:100%; height:12px; }
+    a { color:#2563eb; font-weight:700; }
+    .empty { text-align:center; padding:40px 20px; opacity:.72; }
+    .stock-layout { display:grid; grid-template-columns:minmax(260px,360px) 1fr; gap:16px; }
+    @media (max-width:800px){ .stock-layout{ grid-template-columns:1fr; } }
+    .stock-list { display:flex; flex-direction:column; gap:9px; max-height:620px; overflow:auto; }
+    .stock-row { text-align:left; width:100%; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .stock-row.active { outline:2px solid #2563eb; }
+    .up { color:#16a34a; }
+    .down { color:#dc2626; }
+    .chart-card { border:1px solid color-mix(in srgb,CanvasText 14%,transparent); border-radius:16px; padding:16px; min-height:390px; }
+    canvas { width:100%; height:300px; display:block; }
+    dialog { width:min(640px,90vw); border-radius:16px; border:1px solid color-mix(in srgb,CanvasText 18%,transparent); padding:0; }
+    dialog form { padding:20px; }
+    dialog input { width:100%; box-sizing:border-box; }
+    footer { margin-top:30px; opacity:.65; font-size:.9rem; }
+  </style>
 </head>
-<body><div class="wrap">
-<h1>🎁 Marcelo Free Stock Hunter</h1><div class="muted">Chromebook Edition — runs directly in Chrome.</div>
-<div class="notice">Promotions change fast. Verify the official brokerage terms before signing up. This app never opens accounts, deposits money, or places trades.</div>
-<div class="bar"><select id="filter"><option value="all">All offers</option><option value="zero">$0-deposit only</option><option value="new">New only</option></select><button class="primary" id="refresh">🔄 Refresh</button><button id="settings">⚙️ Settings</button><button id="install" hidden>⬇️ Install app</button></div>
-<div id="status" class="muted"></div>
-<div class="stats"><div class="stat">Offers<b id="count">0</b></div><div class="stat">$0 offers<b id="zero">0</b></div><div class="stat">New<b id="newc">0</b></div></div>
-<div id="cards" class="grid"></div>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <h1>🎁 Marcelo Free Stock Hunter</h1>
+      <div class="muted">Free-stock offers + low-price stock watchlist</div>
+    </div>
+    <button id="settingsBtn">⚙️ Settings</button>
+  </div>
+
+  <div class="warning">
+    Stock prices can be delayed and low share price does not mean a stock is cheap or safe.
+    Always research the company before investing.
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="offers">🎁 Free-stock offers</button>
+    <button class="tab" data-tab="stocks">📈 Low-price stocks</button>
+  </div>
+
+  <section id="offersTab">
+    <div class="toolbar">
+      <select id="offerFilter">
+        <option value="all">All offers</option>
+        <option value="zero">$0-deposit only</option>
+        <option value="new">New only</option>
+      </select>
+      <button class="primary" id="refreshOffersBtn">🔄 Refresh offers</button>
+    </div>
+    <div id="offerStatus" class="muted"></div>
+    <div class="stats">
+      <div class="stat">Offers<strong id="offersCount">0</strong></div>
+      <div class="stat">$0 offers<strong id="zeroCount">0</strong></div>
+      <div class="stat">New<strong id="newCount">0</strong></div>
+    </div>
+    <div id="offerCards" class="grid"></div>
+  </section>
+
+  <section id="stocksTab" hidden>
+    <div class="toolbar">
+      <label>
+        Max price
+        <select id="priceFilter">
+          <option value="5">Under $5</option>
+          <option value="10">Under $10</option>
+          <option value="20" selected>Under $20</option>
+          <option value="50">Under $50</option>
+          <option value="999999">All tracked</option>
+        </select>
+      </label>
+      <label>
+        Sort
+        <select id="stockSort">
+          <option value="price">Lowest price</option>
+          <option value="change">Biggest daily gain</option>
+          <option value="ticker">Ticker</option>
+        </select>
+      </label>
+      <button class="primary" id="refreshStocksBtn">🔄 Refresh prices</button>
+    </div>
+
+    <div id="stockStatus" class="muted"></div>
+    <div class="stats">
+      <div class="stat">Matching stocks<strong id="stockCount">0</strong></div>
+      <div class="stat">Cheapest<strong id="cheapestPrice">—</strong></div>
+      <div class="stat">Price data<strong id="marketUpdated">—</strong></div>
+    </div>
+
+    <div class="stock-layout">
+      <div id="stockList" class="stock-list"></div>
+      <div class="chart-card">
+        <div id="chartTitle"><strong>Select a stock</strong></div>
+        <div id="chartMeta" class="muted"></div>
+        <canvas id="priceChart" width="900" height="320"></canvas>
+        <div id="chartRange" class="muted"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Prices are for research only and may be delayed. The app does not place trades.
+  </footer>
 </div>
-<dialog id="dlg"><h2>Live feed</h2><p class="muted">Paste your public offers.json URL.</p><input id="url" type="url" placeholder="https://raw.githubusercontent.com/.../web/offers.json"><div class="row"><button id="sample">Use sample</button><button id="close">Cancel</button><button class="primary" id="save">Save</button></div></dialog>
+
+<dialog id="settingsDialog">
+  <form method="dialog">
+    <h2>Settings</h2>
+    <p class="muted">Your live offer feed normally stays on the current GitHub repository.</p>
+    <label><strong>offers.json URL</strong></label>
+    <input id="feedUrl" type="url" placeholder="https://raw.githubusercontent.com/..." />
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap">
+      <button value="cancel">Cancel</button>
+      <button id="saveSettingsBtn" class="primary" value="default">Save</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
-const SAMPLE=[{"id":"s1","Broker":"Sample Brokerage","Offer":"Example new-customer stock reward","Reward":"$5–$200 example","Requirement":"$0 deposit indicated","Status":"Sample only","Hunter Score":88,"Why":"Sample data so the Chromebook app works before a live feed is connected.","Source URL":"https://example.com","New":true},{"id":"s2","Broker":"Sample Brokerage 2","Offer":"Example funded-account reward","Reward":"$20 example","Requirement":"Deposit required (example)","Status":"Sample only","Hunter Score":64,"Why":"Second sample for testing filters.","Source URL":"https://example.com","New":false}];
-let offers=SAMPLE,deferredPrompt=null;const $=id=>document.getElementById(id);function zero(o){const r=String(o["Requirement"]||"").toLowerCase();return r.startsWith("$0")||r.includes("no deposit")}function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function render(){const mode=$("filter").value;let list=offers.filter(o=>mode==="all"||(mode==="zero"&&zero(o))||(mode==="new"&&o["New"]));list.sort((a,b)=>(+!!b["New"]-+!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0)));$("count").textContent=offers.length;$("zero").textContent=offers.filter(zero).length;$("newc").textContent=offers.filter(o=>o["New"]).length;$("cards").innerHTML=list.length?list.map(o=>{const s=Math.max(0,Math.min(100,+o["Hunter Score"]||0));const u=/^https?:\/\//i.test(o["Source URL"]||"")?o["Source URL"]:"#";return `<article class="card">${o["New"]?'<span class="pill green">NEW</span>':''}${zero(o)?'<span class="pill green">$0 DEPOSIT</span>':''}<h3>${esc(o["Broker"])}</h3><p><b>${esc(o["Offer"])}</b></p><p>🎁 ${esc(o["Reward"])}</p><p>📌 ${esc(o["Requirement"])}</p><p>🟢 ${esc(o["Status"])}</p><div class="score">Hunter score: <b>${s}/100</b><progress value="${s}" max="100"></progress></div><p class="muted">${esc(o["Why"])}</p><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">Open official source ↗</a></article>`}).join(""):'<div class="muted">No offers match this filter.</div>'}
-async function refresh(){const u=localStorage.getItem("feed")||"";if(!u){offers=SAMPLE;$("status").textContent="Showing sample data. Open Settings to connect the live feed.";render();return}$("status").textContent="Refreshing…";try{const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const d=await r.json();if(!Array.isArray(d))throw new Error("Feed is not a JSON array");offers=d;$("status").textContent="Updated "+new Date().toLocaleString();render()}catch(e){$("status").textContent="Could not refresh: "+e.message;render()}}
-$("filter").onchange=render;$("refresh").onclick=refresh;$("settings").onclick=()=>{$("url").value=localStorage.getItem("feed")||"";$("dlg").showModal()};$("close").onclick=()=>$("dlg").close();$("sample").onclick=()=>{localStorage.removeItem("feed");offers=SAMPLE;$("dlg").close();refresh()};$("save").onclick=()=>{const u=$("url").value.trim();if(u)localStorage.setItem("feed",u);$("dlg").close();refresh()};window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("install").hidden=false});$("install").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("install").hidden=true}};if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(()=>{});render();refresh();
-</script></body></html>
+let offers = [];
+let market = { updated_at: null, stocks: [] };
+let selectedTicker = null;
+
+const $ = id => document.getElementById(id);
+
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function isZero(o){
+  const r=String(o["Requirement"]||"").toLowerCase();
+  return r.startsWith("$0")||r.includes("no deposit");
+}
+function money(n){
+  return Number.isFinite(Number(n)) ? "$"+Number(n).toFixed(2) : "—";
+}
+function pct(n){
+  const x=Number(n);
+  if(!Number.isFinite(x)) return "—";
+  return (x>=0?"+":"")+x.toFixed(2)+"%";
+}
+
+function renderOffers(){
+  const mode=$("offerFilter").value;
+  let shown=offers.filter(o=>mode==="zero"?isZero(o):mode==="new"?!!o["New"]:true);
+  shown.sort((a,b)=>(!!b["New"]-!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0)));
+  $("offersCount").textContent=offers.length;
+  $("zeroCount").textContent=offers.filter(isZero).length;
+  $("newCount").textContent=offers.filter(o=>!!o["New"]).length;
+  if(!shown.length){ $("offerCards").innerHTML='<div class="empty">No offers match this filter.</div>'; return; }
+  $("offerCards").innerHTML=shown.map(o=>{
+    const score=Math.max(0,Math.min(100,Number(o["Hunter Score"]||0)));
+    const url=/^https?:\/\//i.test(o["Source URL"]||"")?o["Source URL"]:"#";
+    return `<article class="card">
+      <div>${o["New"]?'<span class="pill new">NEW</span>':""}${isZero(o)?'<span class="pill zero">$0 DEPOSIT</span>':""}</div>
+      <h3>${escapeHtml(o["Broker"])}</h3>
+      <p><strong>${escapeHtml(o["Offer"])}</strong></p>
+      <p>🎁 ${escapeHtml(o["Reward"])}</p>
+      <p>📌 ${escapeHtml(o["Requirement"])}</p>
+      <p>🟢 ${escapeHtml(o["Status"])}</p>
+      <div>Hunter score: <strong>${score}/100</strong><progress value="${score}" max="100"></progress></div>
+      <p class="muted">${escapeHtml(o["Why"])}</p>
+      <p><a href="${escapeHtml(url)}" target="_blank" rel="noopener">Open official source ↗</a></p>
+    </article>`;
+  }).join("");
+}
+
+async function refreshOffers(){
+  const custom=localStorage.getItem("hunterFeedUrl");
+  const url=custom || "./offers.json";
+  $("offerStatus").textContent="Refreshing…";
+  try{
+    const r=await fetch(url,{cache:"no-store"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    if(!Array.isArray(data)) throw new Error("Feed is not an array");
+    offers=data;
+    $("offerStatus").textContent=`Updated ${new Date().toLocaleString()}`;
+    renderOffers();
+  }catch(e){
+    $("offerStatus").textContent=`Could not refresh offers: ${e.message}`;
+  }
+}
+
+function filteredStocks(){
+  const max=Number($("priceFilter").value);
+  let rows=(market.stocks||[]).filter(s=>Number(s.price)<=max && Number(s.price)>0);
+  const sort=$("stockSort").value;
+  if(sort==="price") rows.sort((a,b)=>a.price-b.price);
+  if(sort==="change") rows.sort((a,b)=>(b.change_pct||0)-(a.change_pct||0));
+  if(sort==="ticker") rows.sort((a,b)=>String(a.ticker).localeCompare(String(b.ticker)));
+  return rows;
+}
+
+function renderStocks(){
+  const rows=filteredStocks();
+  $("stockCount").textContent=rows.length;
+  $("cheapestPrice").textContent=rows.length?money(Math.min(...rows.map(x=>x.price))):"—";
+  $("marketUpdated").textContent=market.updated_at ? new Date(market.updated_at).toLocaleDateString() : "—";
+  if(!rows.length){
+    $("stockList").innerHTML='<div class="empty">No tracked stocks are below that price right now.</div>';
+    clearChart();
+    return;
+  }
+  if(!rows.some(x=>x.ticker===selectedTicker)) selectedTicker=rows[0].ticker;
+  $("stockList").innerHTML=rows.map(s=>{
+    const cls=Number(s.change_pct)>=0?"up":"down";
+    return `<button class="stock-row ${s.ticker===selectedTicker?"active":""}" data-ticker="${escapeHtml(s.ticker)}">
+      <span><strong>${escapeHtml(s.ticker)}</strong><br><small>${escapeHtml(s.name||"")}</small></span>
+      <span style="text-align:right"><strong>${money(s.price)}</strong><br><small class="${cls}">${pct(s.change_pct)}</small></span>
+    </button>`;
+  }).join("");
+  document.querySelectorAll(".stock-row").forEach(btn=>{
+    btn.addEventListener("click",()=>{ selectedTicker=btn.dataset.ticker; renderStocks(); drawSelected(); });
+  });
+  drawSelected();
+}
+
+function clearChart(){
+  const c=$("priceChart"),ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  $("chartTitle").innerHTML="<strong>Select a stock</strong>";
+  $("chartMeta").textContent="";
+  $("chartRange").textContent="";
+}
+
+function drawSelected(){
+  const s=(market.stocks||[]).find(x=>x.ticker===selectedTicker);
+  if(!s){ clearChart(); return; }
+  $("chartTitle").innerHTML=`<strong>${escapeHtml(s.ticker)} — ${escapeHtml(s.name||"")}</strong>`;
+  $("chartMeta").textContent=`Current ${money(s.price)} • Daily ${pct(s.change_pct)}`;
+
+  const hist=(s.history||[]).filter(p=>Number.isFinite(Number(p.close)));
+  if(hist.length<2){ $("chartRange").textContent="Not enough history for chart."; return; }
+
+  const c=$("priceChart"),ctx=c.getContext("2d");
+  const rect=c.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  c.width=Math.max(600,Math.floor(rect.width*dpr));
+  c.height=Math.floor(300*dpr);
+  ctx.clearRect(0,0,c.width,c.height);
+
+  const pad=42*dpr;
+  const vals=hist.map(p=>Number(p.close));
+  let min=Math.min(...vals), max=Math.max(...vals);
+  if(max===min){ max+=1; min-=1; }
+  const x=i=>pad + i*(c.width-2*pad)/(hist.length-1);
+  const y=v=>pad + (max-v)*(c.height-2*pad)/(max-min);
+
+  ctx.lineWidth=1*dpr;
+  ctx.globalAlpha=.22;
+  for(let i=0;i<5;i++){
+    const gy=pad+i*(c.height-2*pad)/4;
+    ctx.beginPath(); ctx.moveTo(pad,gy); ctx.lineTo(c.width-pad,gy); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  ctx.lineWidth=2*dpr;
+  ctx.beginPath();
+  hist.forEach((p,i)=>{ const px=x(i),py=y(Number(p.close)); i?ctx.lineTo(px,py):ctx.moveTo(px,py); });
+  ctx.stroke();
+
+  ctx.font=`${12*dpr}px system-ui`;
+  ctx.fillText("$"+max.toFixed(2),4*dpr,(pad+5*dpr));
+  ctx.fillText("$"+min.toFixed(2),4*dpr,(c.height-pad+5*dpr));
+  $("chartRange").textContent=`${hist[0].date} → ${hist[hist.length-1].date} • 30 trading-day history`;
+}
+
+async function refreshStocks(){
+  $("stockStatus").textContent="Refreshing prices…";
+  try{
+    const r=await fetch("./market_data.json",{cache:"no-store"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    if(!Array.isArray(data.stocks)) throw new Error("market_data.json is invalid");
+    market=data;
+    $("stockStatus").textContent=`Price feed updated ${new Date(data.updated_at).toLocaleString()}`;
+    renderStocks();
+  }catch(e){
+    $("stockStatus").textContent=`Could not load prices: ${e.message}. Run the GitHub price workflow first.`;
+  }
+}
+
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  $("offersTab").hidden=btn.dataset.tab!=="offers";
+  $("stocksTab").hidden=btn.dataset.tab!=="stocks";
+  if(btn.dataset.tab==="stocks" && !(market.stocks||[]).length) refreshStocks();
+}));
+
+$("offerFilter").addEventListener("change",renderOffers);
+$("refreshOffersBtn").addEventListener("click",refreshOffers);
+$("priceFilter").addEventListener("change",renderStocks);
+$("stockSort").addEventListener("change",renderStocks);
+$("refreshStocksBtn").addEventListener("click",refreshStocks);
+
+$("settingsBtn").addEventListener("click",()=>{
+  $("feedUrl").value=localStorage.getItem("hunterFeedUrl")||"";
+  $("settingsDialog").showModal();
+});
+$("saveSettingsBtn").addEventListener("click",()=>{
+  const u=$("feedUrl").value.trim();
+  if(u) localStorage.setItem("hunterFeedUrl",u);
+  else localStorage.removeItem("hunterFeedUrl");
+  setTimeout(refreshOffers,50);
+});
+
+refreshOffers();
+</script>
+</body>
+</html>
