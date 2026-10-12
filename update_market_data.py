@@ -3,6 +3,10 @@ from __future__ import annotations
 import json
 import math
 import time
+import random
+import urllib.parse
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -182,6 +186,86 @@ def historical_analog_prediction(df: pd.DataFrame) -> dict:
         "reasons": reasons[:4],
     }
 
+
+def fetch_news(ticker: str, name: str, count: int = 4):
+    """Fetch a small public headline cache from Yahoo Finance search.
+
+    Failures are intentionally non-fatal; the app always provides a live-news
+    search link as a fallback.
+    """
+    query = f"{ticker} {name if name and name != ticker else ''} stock".strip()
+    url = (
+        "https://query1.finance.yahoo.com/v1/finance/search?"
+        + urllib.parse.urlencode({
+            "q": query,
+            "quotesCount": 0,
+            "newsCount": count,
+            "enableFuzzyQuery": "false",
+        })
+    )
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; MarceloMarkets/8.0)",
+            "Accept": "application/json,text/plain,*/*",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        print(f"NEWS {ticker}: {exc}")
+        return []
+
+    output = []
+    seen = set()
+    for item in data.get("news", [])[:count]:
+        title = str(item.get("title") or "").strip()
+        link = str(item.get("link") or "").strip()
+        if not title or not link or title in seen:
+            continue
+        seen.add(title)
+        ts = item.get("providerPublishTime")
+        published = None
+        if isinstance(ts, (int, float)):
+            try:
+                published = datetime.fromtimestamp(ts, tz=timezone.utc).replace(microsecond=0).isoformat()
+            except Exception:
+                published = None
+        output.append({
+            "title": title,
+            "publisher": str(item.get("publisher") or "News"),
+            "url": link,
+            "published_at": published,
+        })
+    return output
+
+
+def attach_news(records: dict):
+    """Attach latest headlines concurrently without failing the market feed."""
+    tickers = list(records.keys())
+    print(f"Fetching headline cache for {len(tickers)} stocks...")
+    completed = 0
+    with ThreadPoolExecutor(max_workers=7) as pool:
+        futures = {}
+        for ticker in tickers:
+            meta = META.get(ticker, {"name": ticker})
+            futures[pool.submit(fetch_news, ticker, meta.get("name", ticker), 4)] = ticker
+            time.sleep(random.uniform(0.005, 0.02))
+
+        for future in as_completed(futures):
+            ticker = futures[future]
+            try:
+                records[ticker]["news"] = future.result()
+            except Exception as exc:
+                print(f"NEWS {ticker}: {exc}")
+                records[ticker]["news"] = []
+            completed += 1
+            if completed % 50 == 0:
+                print(f"News progress: {completed}/{len(tickers)}")
+    return records
+
+
 def build_record(ticker: str, close: pd.Series, volume: pd.Series | None):
     if close is None:
         return None
@@ -236,6 +320,7 @@ def build_record(ticker: str, close: pd.Series, volume: pd.Series | None):
         "avg_volume_20d": avg_volume,
         "market_cap": 0,
         "prediction": prediction,
+        "news": [],
         "history": history,
     }
 
@@ -277,9 +362,11 @@ def main():
     if not records:
         raise SystemExit("No stock data returned; refusing to overwrite market_data.json.")
 
+    records = attach_news(records)
+
     payload = {
         "updated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-        "source": "yfinance prototype",
+        "source": "yfinance prototype + Yahoo Finance headline cache",
         "universe_size": len(TICKERS),
         "prediction_model": "Historical analog v1",
         "stocks": sorted(records.values(), key=lambda x: x["ticker"]),
