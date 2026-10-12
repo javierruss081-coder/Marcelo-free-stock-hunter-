@@ -4,8 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1220" />
-  <title>Marcelo Markets V7</title>
-  <link rel="manifest" href="manifest.json" />
+  <title>Marcelo Markets V8.1</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="manifest" href="manifest.json?v=8.1" />
   <link rel="icon" href="icon-192.png" />
   <style>
     :root{
@@ -358,6 +361,104 @@
       .detail-grid{grid-template-columns:1fr 1fr}
     }
 
+
+    .portfolio-hero{
+      display:grid;grid-template-columns:minmax(280px,.78fr) minmax(320px,1.22fr);
+      gap:34px;align-items:stretch;padding:18px 0 34px;border-bottom:1px solid #202020;margin-bottom:28px;
+    }
+    .portfolio-summary{display:flex;flex-direction:column;justify-content:center;min-height:250px}
+    .portfolio-value{font-size:clamp(2.8rem,7vw,5.8rem);font-weight:780;letter-spacing:-.07em;line-height:.95}
+    .portfolio-change{font-size:1rem;font-weight:750;margin-top:14px}
+    .portfolio-gain{color:#888;font-size:.82rem;margin-top:5px}
+    .portfolio-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+    .portfolio-chart-wrap{position:relative;min-height:250px;display:flex;align-items:center}
+    #portfolioChart{width:100%;height:250px}
+    .portfolio-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#666;font-size:.82rem;padding:25px}
+    .movers-head{margin-bottom:10px}
+    .round-action.small{width:38px;height:38px;font-size:1.2rem}
+
+    .company-logo,.profile-logo,.table-logo{
+      position:relative;display:grid;place-items:center;overflow:hidden;background:#151515;border:1px solid #292929;color:#f2f2f2;
+      font-weight:800;letter-spacing:-.03em;flex:0 0 auto;
+    }
+    .company-logo{width:36px;height:36px;border-radius:50%;font-size:.7rem}
+    .table-logo{width:30px;height:30px;border-radius:50%;font-size:.62rem}
+    .profile-logo{width:58px;height:58px;border-radius:16px;font-size:1rem}
+    .company-logo img,.profile-logo img,.table-logo img{width:74%;height:74%;object-fit:contain;border-radius:8px}
+    .logo-fallback{display:grid;place-items:center;width:100%;height:100%}
+
+    .mover-card .mover-top{align-items:center}
+    .mover-company{display:flex;align-items:center;gap:9px;min-width:0}
+
+    .stock-list .stock-row{
+      grid-template-columns:40px 30px minmax(0,1fr) auto;
+      gap:9px;
+    }
+    .stock-logo-cell{display:grid;place-items:center}
+    .stock-profile-head{
+      display:grid;grid-template-columns:minmax(260px,1fr) auto auto;gap:22px;align-items:center;
+      padding:8px 0 18px;border-bottom:1px solid #202020;margin-bottom:12px;
+    }
+    .stock-profile-identity{display:flex;gap:13px;align-items:center;min-width:0}
+    .profile-symbol-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .profile-symbol-row h2{font-size:1.45rem;margin:0;letter-spacing:-.035em}
+    .profile-company{font-size:.92rem;font-weight:700;margin-top:3px}
+    .profile-quote{text-align:right}
+    .profile-price{font-size:1.7rem;font-weight:790;letter-spacing:-.04em}
+    .profile-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+
+    .profile-content-grid{
+      display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.65fr);
+      gap:34px;margin-top:34px;border-top:1px solid #202020;padding-top:22px;
+    }
+    .profile-section{min-width:0}
+    .news-list{border-top:1px solid #202020}
+    .news-item{
+      display:grid;grid-template-columns:1fr auto;gap:15px;padding:15px 0;border-bottom:1px solid #202020;
+      text-decoration:none;color:inherit;
+    }
+    .news-item:hover .news-title{color:var(--accent)}
+    .news-title{font-weight:750;line-height:1.3;transition:color .12s ease}
+    .news-meta{color:#747474;font-size:.72rem;margin-top:6px}
+    .news-arrow{color:#666;font-size:1rem;align-self:center}
+    .about-grid{border-top:1px solid #202020}
+    .about-row{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #202020}
+    .about-key{color:#747474;font-size:.78rem}
+    .about-value{text-align:right;font-weight:700;font-size:.82rem}
+
+    .dialog-card{min-width:min(520px,90vw)}
+    .dialog-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:17px}
+    .position-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .position-preview{background:#0b0b0b;border:1px solid #242424;border-radius:12px;padding:12px;margin-top:13px;color:#a5a5a5;font-size:.82rem}
+    .dialog-actions{display:flex;align-items:center;gap:8px;margin-top:18px}
+    .dialog-spacer{flex:1}
+    .danger-btn{border-color:#4b2020;color:#ff8a8a}
+
+    .paper-badge{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;color:#999;margin-top:4px}
+    .paper-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+    @media(max-width:930px){
+      .portfolio-hero{grid-template-columns:1fr;gap:12px}
+      .portfolio-summary{min-height:auto}
+      .portfolio-chart-wrap{min-height:210px}
+      #portfolioChart{height:210px}
+      .stock-profile-head{grid-template-columns:1fr auto}
+      .profile-actions{grid-column:1/-1;justify-content:flex-start}
+      .profile-content-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:590px){
+      .portfolio-value{font-size:3.4rem}
+      .portfolio-chart-wrap{min-height:180px}
+      #portfolioChart{height:180px}
+      .stock-list .stock-row{grid-template-columns:38px 28px minmax(0,1fr) auto}
+      .stock-profile-head{grid-template-columns:1fr}
+      .profile-quote{text-align:left}
+      .profile-actions{grid-column:auto}
+      .profile-logo{width:50px;height:50px;border-radius:14px}
+      .position-fields{grid-template-columns:1fr}
+      .dialog-actions{flex-wrap:wrap}
+    }
+
 </style>
 </head>
 <body>
@@ -366,8 +467,8 @@
     <div class="brand">
       <img src="icon-192.png" alt="">
       <div>
-        <h1>Marcelo Markets V7</h1>
-        <small>Markets • watchlist • charts • research outlooks</small>
+        <h1>Marcelo Markets V8.1</h1>
+        <small>Portfolio • markets • news • research</small>
       </div>
     </div>
     <div class="top-actions">
@@ -377,7 +478,7 @@
   </header>
 
   <div class="notice">
-    Research mode only. V7 does not place trades or hold money. Its outlooks are historical-data estimates, not guarantees or recommendations.
+    Research mode only. V8 includes a local paper portfolio and historical-data outlooks. It does not place trades, hold money, or guarantee future returns.
   </div>
 
   <nav class="nav">
@@ -389,15 +490,27 @@
 
   <main>
     <section id="homeView">
-      <div class="market-hero">
-        <div>
-          <div class="eyebrow">MARKET RESEARCH</div>
-          <div class="hero-title">Your market dashboard</div>
-          <div class="hero-sub">Track prices, spot movers, save a watchlist, and inspect historical outlooks.</div>
+      <div class="portfolio-hero">
+        <div class="portfolio-summary">
+          <div class="eyebrow">PAPER PORTFOLIO</div>
+          <div class="portfolio-value" id="paperPortfolioValue">$0.00</div>
+          <div class="portfolio-change" id="paperPortfolioDay">Add a paper position to start tracking.</div>
+          <div class="portfolio-gain" id="paperPortfolioGain"></div>
+          <div class="portfolio-actions">
+            <button class="btn primary" data-jump="stocks">Add position</button>
+            <button class="btn" data-jump="watchlist">Watchlist</button>
+          </div>
         </div>
-        <button class="round-action" data-jump="stocks" aria-label="Search markets">⌕</button>
+        <div class="portfolio-chart-wrap">
+          <canvas id="portfolioChart"></canvas>
+          <div class="portfolio-empty" id="portfolioEmpty">Your local paper portfolio performance will appear here.</div>
+        </div>
       </div>
 
+      <div class="section-head movers-head">
+        <div><div class="eyebrow">TODAY</div><h2>Market movers</h2></div>
+        <button class="round-action small" data-jump="stocks" aria-label="Search markets">⌕</button>
+      </div>
       <div class="movers-strip" id="moversStrip"></div>
 
       <div class="grid stats">
@@ -506,12 +619,26 @@
           </div>
 
           <div>
-            <div class="section-head">
-              <div>
-                <h2 id="chartTitle">Select a stock</h2>
+            <div class="stock-profile-head">
+              <div class="stock-profile-identity">
+                <div id="profileLogo" class="profile-logo"></div>
+                <div>
+                  <div class="profile-symbol-row">
+                    <h2 id="chartTitle">Select a stock</h2>
+                    <div id="selectedScore"></div>
+                  </div>
+                  <div id="profileCompany" class="profile-company"></div>
+                  <div id="profileSector" class="muted"></div>
+                </div>
+              </div>
+              <div class="profile-quote">
+                <div id="profilePrice" class="profile-price">—</div>
                 <div id="chartSubtitle" class="muted"></div>
               </div>
-              <div id="selectedScore"></div>
+              <div class="profile-actions">
+                <button id="profileWatchBtn" class="btn">☆ Watch</button>
+                <button id="paperPositionBtn" class="btn primary">Paper position</button>
+              </div>
             </div>
             <div id="predictionBox" class="prediction-box" hidden></div>
             <div class="chart-toolbar">
@@ -533,6 +660,25 @@
               <button class="btn" data-range="260">1Y</button>
             </div>
             <div id="stockDetails" class="detail-grid"></div>
+
+            <div class="profile-content-grid">
+              <section class="profile-section">
+                <div class="section-head">
+                  <div><div class="eyebrow">LATEST</div><h2>News</h2></div>
+                  <a id="liveNewsLink" class="text-link" href="#" target="_blank" rel="noopener">Search live news ↗</a>
+                </div>
+                <div id="stockNews" class="news-list">
+                  <div class="empty">Select a stock to view news.</div>
+                </div>
+              </section>
+
+              <section class="profile-section">
+                <div class="section-head">
+                  <div><div class="eyebrow">COMPANY</div><h2>About</h2></div>
+                </div>
+                <div id="stockAbout" class="about-grid"></div>
+              </section>
+            </div>
           </div>
         </div>
       </div>
@@ -589,9 +735,42 @@
   </nav>
 
   <div class="footer">
-    V7 • Prices may be delayed. Research-only market dashboard — no trading or custody.
+    V8 • Prices/news may be delayed. Paper portfolio only — no brokerage account, trading, deposits, or custody.
   </div>
 </div>
+
+
+<dialog id="positionDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-top">
+      <div>
+        <div class="eyebrow">PAPER PORTFOLIO</div>
+        <h2 id="positionDialogTitle">Add position</h2>
+        <div id="positionDialogPrice" class="muted"></div>
+      </div>
+      <button class="btn" value="cancel">Close</button>
+    </div>
+
+    <input id="positionTicker" type="hidden" />
+    <div class="position-fields">
+      <div class="field">
+        <label>Shares</label>
+        <input id="positionShares" inputmode="decimal" type="number" min="0" step="0.0001" placeholder="10" />
+      </div>
+      <div class="field">
+        <label>Average cost per share</label>
+        <input id="positionCost" inputmode="decimal" type="number" min="0" step="0.0001" placeholder="25.00" />
+      </div>
+    </div>
+    <div class="position-preview" id="positionPreview"></div>
+    <div class="dialog-actions">
+      <button id="removePositionBtn" class="btn danger-btn" type="button">Remove position</button>
+      <span class="dialog-spacer"></span>
+      <button class="btn" value="cancel">Cancel</button>
+      <button id="savePositionBtn" class="btn primary" type="button">Save paper position</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog id="settingsDialog">
   <form method="dialog">
@@ -623,6 +802,7 @@ let offers = [];
 let selectedTicker = null;
 let chartRange = 22;
 let watchlist = new Set(JSON.parse(localStorage.getItem("v5Watchlist") || "[]"));
+let paperPositions = JSON.parse(localStorage.getItem("v8PaperPositions") || "{}");
 
 function esc(v){
   return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -643,6 +823,40 @@ function pct(v){
   const n=Number(v); if(!Number.isFinite(n)) return "—";
   return (n>=0?"+":"")+n.toFixed(2)+"%";
 }
+
+const COMPANY_DOMAINS = {"AAPL":"apple.com","MSFT":"microsoft.com","NVDA":"nvidia.com","AMD":"amd.com","INTC":"intel.com","META":"meta.com","GOOGL":"google.com","GOOG":"google.com","AMZN":"amazon.com","TSLA":"tesla.com","NFLX":"netflix.com","DIS":"disney.com","UBER":"uber.com","LYFT":"lyft.com","ABNB":"airbnb.com","BKNG":"booking.com","EXPE":"expedia.com","SPOT":"spotify.com","SNAP":"snap.com","PINS":"pinterest.com","RBLX":"roblox.com","RDDT":"reddit.com","SHOP":"shopify.com","CRM":"salesforce.com","ORCL":"oracle.com","IBM":"ibm.com","NOW":"servicenow.com","PLTR":"palantir.com","SNOW":"snowflake.com","NET":"cloudflare.com","DDOG":"datadoghq.com","MDB":"mongodb.com","PATH":"uipath.com","PANW":"paloaltonetworks.com","CRWD":"crowdstrike.com","FTNT":"fortinet.com","OKTA":"okta.com","DOCU":"docusign.com","ZM":"zoom.com","TEAM":"atlassian.com","ADSK":"autodesk.com","QCOM":"qualcomm.com","AVGO":"broadcom.com","TXN":"ti.com","MU":"micron.com","AMAT":"appliedmaterials.com","LRCX":"lamresearch.com","ARM":"arm.com","DELL":"dell.com","HPQ":"hp.com","CSCO":"cisco.com","PYPL":"paypal.com","HOOD":"robinhood.com","SOFI":"sofi.com","COIN":"coinbase.com","JPM":"jpmorganchase.com","BAC":"bankofamerica.com","C":"citi.com","WFC":"wellsfargo.com","GS":"goldmansachs.com","MS":"morganstanley.com","SCHW":"schwab.com","V":"visa.com","MA":"mastercard.com","AXP":"americanexpress.com","BLK":"blackrock.com","BX":"blackstone.com","LLY":"lilly.com","JNJ":"jnj.com","PFE":"pfizer.com","MRNA":"modernatx.com","MRK":"merck.com","ABBV":"abbvie.com","UNH":"unitedhealthgroup.com","CVS":"cvshealth.com","HIMS":"hims.com","ISRG":"intuitive.com","XOM":"exxonmobil.com","CVX":"chevron.com","COP":"conocophillips.com","SLB":"slb.com","OXY":"oxy.com","BA":"boeing.com","GE":"ge.com","CAT":"caterpillar.com","DE":"deere.com","HON":"honeywell.com","LMT":"lockheedmartin.com","RTX":"rtx.com","UPS":"ups.com","FDX":"fedex.com","F":"ford.com","GM":"gm.com","RIVN":"rivian.com","LCID":"lucidmotors.com","NIO":"nio.com","XPEV":"xpeng.com","LI":"lixiang.com","WMT":"walmart.com","TGT":"target.com","COST":"costco.com","KO":"coca-colacompany.com","PEP":"pepsico.com","SBUX":"starbucks.com","MCD":"mcdonalds.com","NKE":"nike.com","HD":"homedepot.com","LOW":"lowes.com","EBAY":"ebay.com","BABA":"alibabagroup.com","PDD":"pddholdings.com","MELI":"mercadolibre.com","CMG":"chipotle.com","LULU":"lululemon.com","DKNG":"draftkings.com","CHWY":"chewy.com","ETSY":"etsy.com","T":"att.com","VZ":"verizon.com","TMUS":"t-mobile.com","CMCSA":"comcast.com","EA":"ea.com","TTWO":"take2games.com","O":"realtyincome.com","PLD":"prologis.com","AMT":"americantower.com","EQIX":"equinix.com","NEE":"nexteraenergy.com","DUK":"duke-energy.com","AEP":"aep.com","FSLR":"firstsolar.com","ENPH":"enphase.com","FCX":"fcx.com","NEM":"newmont.com","NUE":"nucor.com"};
+
+function logoMarkup(s, cls="company-logo"){
+  const ticker=String(s?.ticker||"").toUpperCase();
+  const domain=COMPANY_DOMAINS[ticker];
+  const fallback=esc((ticker||"?").slice(0,3));
+  if(!domain) return `<div class="${cls}"><span class="logo-fallback">${fallback}</span></div>`;
+  const url=`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+  return `<div class="${cls}">
+    <img src="${url}" alt="" loading="lazy"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+    <span class="logo-fallback" style="display:none">${fallback}</span>
+  </div>`;
+}
+
+function savePaperPositions(){
+  localStorage.setItem("v8PaperPositions",JSON.stringify(paperPositions));
+}
+
+function positionFor(ticker){
+  const p=paperPositions[String(ticker||"").toUpperCase()];
+  if(!p) return null;
+  const shares=Number(p.shares),avgCost=Number(p.avgCost);
+  return Number.isFinite(shares)&&shares>0 ? {shares,avgCost:Number.isFinite(avgCost)?avgCost:0} : null;
+}
+
+function humanDate(value){
+  if(!value) return "";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+}
+
 function isZeroOffer(o){
   const s=String(o["Requirement"]||"").toLowerCase();
   return s.startsWith("$0") || s.includes("no deposit");
@@ -870,7 +1084,10 @@ function renderMoverStrip(stocks){
   $("moversStrip").innerHTML=movers.length?movers.map(s=>`
     <div class="mover-card" data-open-stock="${esc(s.ticker)}">
       <div class="mover-top">
-        <div><div class="mover-ticker">${esc(s.ticker)}</div><div class="mover-name">${esc(s.name||s.sector||"")}</div></div>
+        <div class="mover-company">
+          ${logoMarkup(s)}
+          <div><div class="mover-ticker">${esc(s.ticker)}</div><div class="mover-name">${esc(s.name||s.sector||"")}</div></div>
+        </div>
         <div class="mover-change ${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</div>
       </div>
       <div class="mover-price">${money(s.price)}</div>
@@ -887,7 +1104,7 @@ function renderHomeWatchlist(stocks){
     <div class="watch-preview-list">
       ${rows.map(s=>`
         <div class="watch-preview-row" data-preview-stock="${esc(s.ticker)}">
-          <div><div class="symbol">${esc(s.ticker)}</div><div class="company">${esc(s.name||s.sector||"")}</div></div>
+          <div style="display:flex;align-items:center;gap:10px">${logoMarkup(s,"table-logo")}<div><div class="symbol">${esc(s.ticker)}</div><div class="company">${esc(s.name||s.sector||"")}</div></div></div>
           <div>${money(s.price)}</div>
           <div class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</div>
         </div>`).join("")}
@@ -898,12 +1115,112 @@ function renderHomeWatchlist(stocks){
   });
 }
 
+
+function portfolioSeries(stocks){
+  const active=stocks.filter(s=>positionFor(s.ticker) && Array.isArray(s.history) && s.history.length);
+  if(!active.length) return [];
+  const dates=[...new Set(active.flatMap(s=>s.history.slice(-66).map(h=>h.date)))].sort().slice(-66);
+  return dates.map(date=>{
+    let value=0,seen=0;
+    active.forEach(s=>{
+      const p=positionFor(s.ticker);
+      const row=[...s.history].reverse().find(h=>h.date<=date && Number(h.close)>0);
+      if(row){value+=p.shares*Number(row.close);seen++;}
+    });
+    return seen?{date,value}:null;
+  }).filter(Boolean);
+}
+
+function drawPortfolioChart(series){
+  const c=$("portfolioChart"),ctx=c.getContext("2d");
+  const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  c.width=Math.max(520,Math.floor(rect.width*dpr));
+  c.height=Math.max(180,Math.floor(rect.height*dpr));
+  ctx.clearRect(0,0,c.width,c.height);
+  if(series.length<2) return;
+
+  const vals=series.map(x=>x.value);
+  let min=Math.min(...vals),max=Math.max(...vals);
+  const extra=(max-min)*.12 || max*.02 || 1; min-=extra;max+=extra;
+  const pad=10*dpr;
+  const x=i=>pad+i*(c.width-pad*2)/(series.length-1);
+  const y=v=>pad+(max-v)*(c.height-pad*2)/(max-min);
+  const rising=vals.at(-1)>=vals[0];
+  const stroke=rising?"#00c805":"#ff4d4f";
+  const grad=ctx.createLinearGradient(0,0,0,c.height);
+  grad.addColorStop(0,rising?"rgba(0,200,5,.24)":"rgba(255,77,79,.20)");
+  grad.addColorStop(1,"rgba(0,0,0,0)");
+
+  ctx.beginPath();
+  vals.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));
+  ctx.lineTo(x(vals.length-1),c.height-pad);ctx.lineTo(x(0),c.height-pad);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+
+  ctx.beginPath();
+  vals.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));
+  ctx.strokeStyle=stroke;ctx.lineWidth=2.4*dpr;ctx.stroke();
+}
+
+function renderPaperPortfolio(stocks){
+  const active=stocks.map(s=>({s,p:positionFor(s.ticker)})).filter(x=>x.p);
+  const value=active.reduce((sum,{s,p})=>sum+p.shares*Number(s.price||0),0);
+  const prev=active.reduce((sum,{s,p})=>sum+p.shares*Number(s.previous_close||s.price||0),0);
+  const cost=active.reduce((sum,{p})=>sum+p.shares*Number(p.avgCost||0),0);
+  const day=value-prev;
+  const dayPct=prev>0?day/prev*100:0;
+  const gain=value-cost;
+  const gainPct=cost>0?gain/cost*100:0;
+
+  $("paperPortfolioValue").textContent=money(value);
+  if(!active.length){
+    $("paperPortfolioDay").textContent="Add a paper position to start tracking.";
+    $("paperPortfolioDay").className="portfolio-change";
+    $("paperPortfolioGain").textContent="Positions stay only on this device.";
+    $("portfolioEmpty").hidden=false;
+    const c=$("portfolioChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);
+    return;
+  }
+
+  $("paperPortfolioDay").textContent=`${day>=0?"+":""}${money(day).replace("$","$")} (${pct(dayPct)}) today`;
+  $("paperPortfolioDay").className=`portfolio-change ${day>=0?"up":"down"}`;
+  $("paperPortfolioGain").textContent=`Total paper gain/loss: ${gain>=0?"+":""}${money(gain)} (${pct(gainPct)}) • ${active.length} position${active.length===1?"":"s"}`;
+  const series=portfolioSeries(stocks);
+  $("portfolioEmpty").hidden=series.length>=2;
+  drawPortfolioChart(series);
+}
+
+function openPositionDialog(ticker){
+  const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===ticker);
+  if(!s) return;
+  const p=positionFor(ticker);
+  $("positionTicker").value=ticker;
+  $("positionDialogTitle").textContent=`${p?"Edit":"Add"} ${ticker} paper position`;
+  $("positionDialogPrice").textContent=`Current price ${money(s.price)} • stored only on this device`;
+  $("positionShares").value=p?p.shares:"";
+  $("positionCost").value=p&&p.avgCost?p.avgCost:Number(s.price||0).toFixed(2);
+  $("removePositionBtn").hidden=!p;
+  updatePositionPreview();
+  $("positionDialog").showModal();
+}
+
+function updatePositionPreview(){
+  const shares=Number($("positionShares").value)||0;
+  const cost=Number($("positionCost").value)||0;
+  const ticker=$("positionTicker").value;
+  const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===ticker);
+  const current=Number(s?.price)||0;
+  const marketValue=shares*current, invested=shares*cost;
+  const gain=marketValue-invested;
+  $("positionPreview").innerHTML=`Paper market value <strong>${money(marketValue)}</strong> • Paper cost <strong>${money(invested)}</strong> • Gain/loss <strong class="${gain>=0?"up":"down"}">${gain>=0?"+":""}${money(gain)}</strong>`;
+}
+
 function renderHome(){
   const stocks=decoratedStocks.length ? decoratedStocks : decorateStocks(market.stocks||[]);
   $("homeTracked").textContent=stocks.length||"—";
   $("homeUnder20").textContent=stocks.filter(s=>Number(s.price)<=20).length;
   $("homeOffers").textContent=offers.length;
   $("homeNew").textContent=offers.filter(o=>o["New"]).length;
+  renderPaperPortfolio(stocks);
   renderMoverStrip(stocks);
   renderHomeWatchlist(stocks);
 
@@ -918,7 +1235,7 @@ function renderHome(){
     $("candidateTable").innerHTML=`<table class="table">
       <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Outlook</th><th>Score</th></tr></thead>
       <tbody>${candidates.map(s=>`<tr data-candidate-stock="${esc(s.ticker)}">
-        <td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></td>
+        <td><div style="display:flex;align-items:center;gap:9px">${logoMarkup(s,"table-logo")}<div><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></div></div></td>
         <td>${money(s.price)}</td>
         <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
         <td><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span><div class="muted">${Number.isFinite(s._outlook.upRate)?s._outlook.upRate.toFixed(0)+"% analog up-rate":""}</div></td>
@@ -988,6 +1305,7 @@ function renderStocks(){
 
   $("stockList").innerHTML=rows.map(s=>`
     <div class="stock-row ${selectedTicker===s.ticker?"active":""}" data-ticker="${esc(s.ticker)}">
+      <div class="stock-logo-cell">${logoMarkup(s)}</div>
       <button class="star ${watchlist.has(s.ticker)?"on":""}" data-star="${esc(s.ticker)}" title="Watchlist">★</button>
       <button class="stock-main" data-select="${esc(s.ticker)}">
         <strong>${esc(s.ticker)}</strong>
@@ -1011,6 +1329,8 @@ function renderStocks(){
 function clearChart(){
   const c=$("priceChart"),ctx=c.getContext("2d"); ctx.clearRect(0,0,c.width,c.height);
   $("chartTitle").textContent="Select a stock"; $("chartSubtitle").textContent=""; $("stockDetails").innerHTML=""; $("predictionBox").hidden=true;
+  $("profileLogo").innerHTML=""; $("profileCompany").textContent=""; $("profileSector").textContent=""; $("profilePrice").textContent="—";
+  $("stockNews").innerHTML='<div class="empty">Select a stock to view news.</div>'; $("stockAbout").innerHTML="";
 }
 
 function movingAverageFromHistory(hist, period){
@@ -1027,9 +1347,17 @@ function drawSelected(){
   const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===selectedTicker);
   if(!s){ clearChart(); return; }
 
-  $("chartTitle").textContent=`${s.ticker} — ${s.name||""}`;
-  $("chartSubtitle").textContent=`${money(s.price)} • ${pct(s.change_pct)} today • ${s.sector||"Unknown sector"}`;
+  $("chartTitle").textContent=s.ticker;
+  $("profileCompany").textContent=s.name||s.ticker;
+  $("profileSector").textContent=s.sector||"Unknown sector";
+  $("profilePrice").textContent=money(s.price);
+  $("chartSubtitle").innerHTML=`<span class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)} today</span>`;
   $("selectedScore").innerHTML=`<span class="pill ${s._score>=70?"green":"yellow"}">Research ${s._score}/100</span>`;
+  $("profileLogo").innerHTML=logoMarkup(s,"profile-logo").replace('class="profile-logo"','class="profile-logo profile-logo-inner"');
+  $("profileWatchBtn").textContent=watchlist.has(s.ticker)?"★ Watching":"☆ Watch";
+  const pos=positionFor(s.ticker);
+  $("paperPositionBtn").textContent=pos?`Paper: ${pos.shares} sh`:"Paper position";
+  $("liveNewsLink").href=`https://news.google.com/search?q=${encodeURIComponent((s.name||s.ticker)+" "+s.ticker+" stock")}`;
 
   const pred=s._outlook||serverOutlook(s);
   $("predictionBox").hidden=false;
@@ -1134,11 +1462,33 @@ function drawSelected(){
     sma20:sma20[i], sma50:sma50[i]
   }));
 
+  const closes=full.map(h=>Number(h.close)).filter(Number.isFinite);
+  const high52=closes.length?Math.max(...closes):null;
+  const low52=closes.length?Math.min(...closes):null;
+  const avgVol=Number(s.avg_volume_20d)||0;
+  const relVol=avgVol>0?Number(s.volume||0)/avgVol:null;
+
   $("stockDetails").innerHTML=`
     <div class="mini"><div class="k">Daily volume</div><div class="v">${compact(s.volume)}</div></div>
     <div class="mini"><div class="k">20-day avg volume</div><div class="v">${compact(s.avg_volume_20d)}</div></div>
-    <div class="mini"><div class="k">Sector</div><div class="v">${esc(s.sector||"Unknown")}</div></div>
+    <div class="mini"><div class="k">52-week range</div><div class="v">${low52?money(low52):"—"} – ${high52?money(high52):"—"}</div></div>
     <div class="mini"><div class="k">Analog confidence</div><div class="v">${pred.confidence||pred.strength||0}/100</div></div>`;
+
+  const news=Array.isArray(s.news)?s.news.slice(0,5):[];
+  $("stockNews").innerHTML=news.length?news.map(n=>`
+    <a class="news-item" href="${esc(n.url||"#")}" target="_blank" rel="noopener">
+      <div><div class="news-title">${esc(n.title||"Market update")}</div><div class="news-meta">${esc(n.publisher||"News")} ${n.published_at?"• "+esc(humanDate(n.published_at)):""}</div></div>
+      <div class="news-arrow">↗</div>
+    </a>`).join(""):`
+      <div class="empty">No cached headlines are available for ${esc(s.ticker)} yet. Use “Search live news” above, or run the market workflow again.</div>`;
+
+  $("stockAbout").innerHTML=`
+    <div class="about-row"><span class="about-key">Company</span><span class="about-value">${esc(s.name||s.ticker)}</span></div>
+    <div class="about-row"><span class="about-key">Ticker</span><span class="about-value">${esc(s.ticker)}</span></div>
+    <div class="about-row"><span class="about-key">Sector</span><span class="about-value">${esc(s.sector||"Unknown")}</span></div>
+    <div class="about-row"><span class="about-key">Relative volume</span><span class="about-value">${Number.isFinite(relVol)?relVol.toFixed(2)+"×":"—"}</span></div>
+    <div class="about-row"><span class="about-key">Research score</span><span class="about-value">${s._score}/100</span></div>
+    <div class="about-row"><span class="about-key">Paper position</span><span class="about-value">${pos?`${pos.shares} shares @ ${money(pos.avgCost)}`:"None"}</span></div>`;
 }
 
 document.querySelectorAll("[data-range]").forEach(b=>b.addEventListener("click",()=>{
@@ -1152,6 +1502,37 @@ $("stockSearch").addEventListener("input",()=>{
 });
 ["maxPrice","sectorFilter","volumeFilter","stockSort"].forEach(id=>$(id).addEventListener("change",renderStocks));
 $("refreshStocks").addEventListener("click",refreshStocks);
+
+$("profileWatchBtn").addEventListener("click",()=>{
+  if(selectedTicker) toggleWatch(selectedTicker);
+  drawSelected();
+});
+$("paperPositionBtn").addEventListener("click",()=>{ if(selectedTicker) openPositionDialog(selectedTicker); });
+$("positionShares").addEventListener("input",updatePositionPreview);
+$("positionCost").addEventListener("input",updatePositionPreview);
+
+$("savePositionBtn").addEventListener("click",()=>{
+  const ticker=$("positionTicker").value;
+  const shares=Number($("positionShares").value);
+  const avgCost=Number($("positionCost").value);
+  if(!ticker || !Number.isFinite(shares) || shares<=0 || !Number.isFinite(avgCost) || avgCost<0){
+    alert("Enter a share amount above 0 and a valid average cost.");
+    return;
+  }
+  paperPositions[ticker]={shares,avgCost};
+  savePaperPositions();
+  $("positionDialog").close();
+  renderHome();renderStocks();renderWatchlist();drawSelected();
+});
+
+$("removePositionBtn").addEventListener("click",()=>{
+  const ticker=$("positionTicker").value;
+  if(ticker && paperPositions[ticker]) delete paperPositions[ticker];
+  savePaperPositions();
+  $("positionDialog").close();
+  renderHome();renderStocks();renderWatchlist();drawSelected();
+});
+
 
 ["togglePrice","toggleSma20","toggleSma50"].forEach(id=>{
   $(id).addEventListener("click",()=>{
@@ -1191,6 +1572,11 @@ document.querySelectorAll("[data-quick]").forEach(b=>b.addEventListener("click",
   if(quickMode==="bullish") $("stockSort").value="outlook";
   renderStocks();
 }));
+
+window.addEventListener("resize",()=>{
+  clearTimeout(window.__v8Resize);
+  window.__v8Resize=setTimeout(()=>{renderHome(); if(selectedTicker) drawSelected();},120);
+});
 
 document.addEventListener("keydown",e=>{
   if(e.key==="/" && document.activeElement?.tagName!=="INPUT"){
@@ -1236,10 +1622,11 @@ function renderWatchlist(){
   const rows=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).filter(s=>watchlist.has(s.ticker)).sort((a,b)=>b._score-a._score);
   if(!rows.length){ $("watchlistTable").innerHTML='<div class="empty">Tap ★ next to a stock to save it here.</div>'; return; }
   $("watchlistTable").innerHTML=`<table class="table"><thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Sector</th><th>Score</th><th></th></tr></thead>
-    <tbody>${rows.map(s=>`<tr><td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.name||"")}</div></td>
+    <tbody>${rows.map(s=>`<tr data-watch-open="${esc(s.ticker)}"><td><div style="display:flex;align-items:center;gap:9px">${logoMarkup(s,"table-logo")}<div><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.name||"")}</div></div></div></td>
       <td>${money(s.price)}</td><td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
       <td>${esc(s.sector||"Unknown")}</td><td>${s._score}/100</td><td><button class="btn" data-remove="${esc(s.ticker)}">Remove</button></td></tr>`).join("")}</tbody></table>`;
-  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>toggleWatch(b.dataset.remove)));
+  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();toggleWatch(b.dataset.remove)}));
+  document.querySelectorAll("[data-watch-open]").forEach(r=>r.addEventListener("click",()=>openStock(r.dataset.watchOpen)));
 }
 $("clearWatchlist").addEventListener("click",()=>{watchlist.clear();saveWatchlist();renderWatchlist();renderStocks();});
 
@@ -1258,7 +1645,7 @@ $("saveSettings").addEventListener("click",()=>{
 if("Notification" in window && Notification.permission==="granted") $("notifyBtn").textContent="🔔 Alerts enabled";
 
 if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+  navigator.serviceWorker.register("./service-worker.js?v=8.1", {updateViaCache:"none"}).catch(()=>{});
 }
 
 Promise.all([refreshOffers(),refreshStocks()]).then(renderHome);

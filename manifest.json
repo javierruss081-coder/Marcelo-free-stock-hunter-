@@ -1,12 +1,12 @@
 {
-  "name": "Marcelo Markets V7",
+  "name": "Marcelo Markets V8.1",
   "short_name": "Marcelo Markets",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#060606",
   "theme_color": "#060606",
-  "description": "A mobile-first market research dashboard with watchlists, charts, rewards, and historical outlooks.",
+  "description": "A brokerage-inspired research dashboard with paper portfolio, stock profiles, company logos, news, watchlists, charts, rewards, and historical outlooks.",
   "icons": [
     {
       "src": "icon-192.png",

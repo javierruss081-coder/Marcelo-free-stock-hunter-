@@ -1,4 +1,4 @@
-const CACHE = "marcelo-v7";
+const CACHE = "marcelo-v8-1";
 const STATIC = [
   "./",
   "./index.html",
@@ -31,6 +31,8 @@ self.addEventListener("fetch", event => {
   const networkFirst =
     req.mode === "navigate" ||
     url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/manifest.json") ||
+    url.pathname.endsWith("/service-worker.js") ||
     url.pathname.endsWith("/offers.json") ||
     url.pathname.endsWith("/market_data.json");
 
