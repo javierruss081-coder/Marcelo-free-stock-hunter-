@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1220" />
-  <title>Marcelo Stock Hunter V6</title>
+  <title>Marcelo Markets V7</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <style>
@@ -143,6 +143,221 @@
     .model-badge{font-size:.68rem;color:#93c5fd}
     @media(max-width:760px){.prediction-box{grid-template-columns:1fr 1fr}}
 
+
+    :root{
+      --bg:#060606;
+      --panel:#0b0b0b;
+      --panel2:#111111;
+      --line:#242424;
+      --text:#f7f7f7;
+      --muted:#9b9b9b;
+      --blue:#00c805;
+      --green:#00c805;
+      --red:#ff4d4f;
+      --yellow:#f5c542;
+      --shadow:none;
+      --accent:#00c805;
+    }
+    html{background:var(--bg)}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      letter-spacing:-.01em;
+    }
+    .app{max-width:1180px;padding:0 22px 86px}
+    .topbar{
+      position:sticky;top:0;z-index:40;
+      min-height:72px;margin:0 -6px 20px;padding:12px 6px;
+      background:rgba(6,6,6,.92);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    .brand img{width:36px;height:36px;border-radius:50%;box-shadow:none}
+    .brand h1{font-size:1.06rem;font-weight:780;letter-spacing:-.025em}
+    .brand small{font-size:.72rem}
+    .top-actions .btn{background:transparent;border-color:#262626}
+    .btn{
+      border:1px solid #282828;
+      background:#111;
+      color:#f5f5f5;
+      border-radius:999px;
+      padding:9px 13px;
+      font-weight:700;
+      transition:background .14s ease,transform .14s ease,border-color .14s ease;
+    }
+    .btn:hover{background:#1b1b1b;transform:translateY(-1px)}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#041204}
+    .btn.success{background:var(--accent);border-color:var(--accent);color:#041204}
+    .nav{
+      gap:22px;border-bottom:1px solid #1c1c1c;margin-bottom:24px;
+      padding:0;
+    }
+    .nav button{
+      border:0;background:transparent;border-radius:0;padding:12px 1px;
+      color:#9c9c9c;font-size:.9rem;
+      border-bottom:2px solid transparent;
+    }
+    .nav .active{background:transparent;border-color:var(--accent);color:#fff}
+    .notice{
+      background:#0c0c0c;border:1px solid #202020;color:#a8a8a8;
+      border-radius:12px;font-size:.78rem;padding:10px 12px;margin-bottom:24px;
+    }
+    .market-hero{
+      display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
+      padding:16px 0 20px;
+    }
+    .eyebrow{font-size:.68rem;color:#7f7f7f;font-weight:800;letter-spacing:.11em;margin-bottom:8px}
+    .hero-title{font-size:clamp(2rem,5vw,4rem);font-weight:800;letter-spacing:-.055em;line-height:.98}
+    .hero-sub{color:#969696;max-width:640px;margin-top:12px;font-size:.96rem}
+    .round-action{
+      width:46px;height:46px;border-radius:50%;border:0;background:#f2f2f2;color:#050505;
+      font-size:1.5rem;font-weight:800;
+    }
+    .movers-strip{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;
+      margin:6px 0 22px;
+    }
+    .mover-card{
+      background:#0c0c0c;border:1px solid #1f1f1f;border-radius:14px;padding:14px;
+      min-height:108px;cursor:pointer;transition:background .15s ease,border-color .15s ease;
+    }
+    .mover-card:hover{background:#111;border-color:#323232}
+    .mover-top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+    .mover-ticker{font-weight:800}
+    .mover-name{font-size:.75rem;color:#7e7e7e;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mover-price{font-size:1.08rem;font-weight:780;margin-top:20px}
+    .mover-change{font-size:.78rem;font-weight:750}
+    .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid #202020;border-bottom:1px solid #202020;margin:0 0 28px}
+    .stat,.panel,.card{
+      background:transparent;border:0;border-radius:0;box-shadow:none;
+    }
+    .stat{padding:18px 18px 18px 0}
+    .stat+.stat{padding-left:18px;border-left:1px solid #202020}
+    .stat .label{font-size:.72rem;color:#777}
+    .stat .value{font-size:1.65rem;letter-spacing:-.04em}
+    .panel{padding:0}
+    .home-grid{grid-template-columns:1.3fr .7fr;gap:34px}
+    .home-grid>.panel{border-top:1px solid #202020;padding-top:18px}
+    .section-head h2{font-size:1.3rem;letter-spacing:-.035em}
+    .table th,.table td{border-color:#202020;padding:13px 8px}
+    .table th{font-weight:700;color:#6f6f6f}
+    .table tr{transition:background .12s ease}
+    .table tbody tr:hover{background:#0b0b0b}
+    .home-watch-panel{margin-top:34px;border-top:1px solid #202020;padding-top:18px}
+    .text-link{border:0;background:transparent;color:var(--accent);font-weight:750}
+    .market-screen-head{padding:10px 0 22px}
+    .market-screen-head h1{margin:0;font-size:2.05rem;letter-spacing:-.05em}
+    .market-panel{padding:0}
+    .toolbar{padding:12px 0 16px;border-bottom:1px solid #202020;margin-bottom:12px}
+    .search-toolbar{align-items:end}
+    .field label{font-size:.68rem;color:#6f6f6f;font-weight:750}
+    input,select{
+      background:#101010;border:1px solid #242424;border-radius:12px;
+      min-height:42px;color:#f6f6f6;
+    }
+    input:focus,select:focus{outline:1px solid #4b4b4b;border-color:#525252}
+    #stockSearch{min-width:280px}
+    .quick-filters{padding:1px 0 12px;border-bottom:1px solid #1c1c1c;margin:0 0 13px}
+    .quick-filters .active{background:#ededed;border-color:#ededed;color:#050505}
+    .stocks-layout{grid-template-columns:340px 1fr;gap:28px}
+    .stock-list{gap:0;max-height:720px;border-top:1px solid #202020}
+    .stock-row{
+      background:transparent;border:0;border-bottom:1px solid #1f1f1f;
+      border-radius:0;padding:13px 4px;grid-template-columns:34px 1fr auto;
+    }
+    .stock-row:hover{background:#0c0c0c;transform:none}
+    .stock-row.active{border-color:#1f1f1f;background:#0d0d0d;box-shadow:inset 3px 0 0 var(--accent)}
+    .stock-main strong{font-size:.95rem}
+    .stock-price{font-size:.91rem}
+    .star{color:#555}.star.on{color:var(--accent)}
+    .pill{
+      background:#171717;color:#aaa;border-radius:999px;padding:4px 7px;font-size:.66rem;font-weight:750;
+    }
+    .pill.green{background:rgba(0,200,5,.12);color:#32df36}
+    .pill.yellow{background:rgba(245,197,66,.12);color:#f5c542}
+    .pill.red{background:rgba(255,77,79,.12);color:#ff7778}
+    .outlook-pill{background:transparent!important;padding:0;margin:0;font-size:.74rem}
+    .outlook-pill.bull{color:#00c805}.outlook-pill.bear{color:#ff4d4f}.outlook-pill.neutral{color:#c7c7c7}
+    .prediction-box{
+      background:#090909;border:1px solid #1f1f1f;border-radius:14px;
+      padding:14px;margin:10px 0 14px;gap:12px;
+    }
+    .prediction-box .pred-label{color:#757575}
+    .prediction-box .pred-main{font-size:1.05rem}
+    .prediction-note{border-color:#202020;color:#737373}
+    .prediction-reasons .pill{background:#121212;color:#a7a7a7}
+    .chart-toolbar{margin:8px 0}
+    .chart-toolbar .btn{background:transparent;padding:6px 9px}
+    .chart-toolbar .active{background:#ededed;border-color:#ededed;color:#050505}
+    .chart-wrap{
+      height:390px;background:#060606;border:0;border-radius:0;padding:0;
+    }
+    .chart-tooltip{background:#111;border-color:#333}
+    .range-buttons{border-top:1px solid #202020;padding-top:10px}
+    .range-buttons .active{background:#ededed;border-color:#ededed;color:#050505}
+    .mini{background:transparent;border:0;border-top:1px solid #1f1f1f;border-radius:0;padding:12px 0}
+    .mini .k{color:#737373}
+    .detail-grid{gap:18px}
+    .offer-grid{gap:0;border-top:1px solid #202020}
+    .offer-card{
+      background:transparent;border:0;border-bottom:1px solid #202020;border-radius:0;padding:17px 4px;
+    }
+    .offer-card h3{font-size:1rem}
+    a{color:var(--accent)}
+    .bottom-nav{
+      display:none;
+      position:fixed;bottom:0;left:0;right:0;z-index:60;
+      background:rgba(6,6,6,.96);backdrop-filter:blur(18px);
+      border-top:1px solid #222;padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+      grid-template-columns:repeat(4,1fr);
+    }
+    .bottom-tab{
+      border:0;background:transparent;color:#777;padding:4px 6px;
+      display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:750;
+    }
+    .bottom-tab span{font-size:1.25rem;line-height:1}
+    .bottom-tab small{font-size:.62rem}
+    .bottom-tab.active{color:#fff}
+    .bottom-tab.active span{color:var(--accent)}
+    .watch-preview-list{border-top:1px solid #202020}
+    .watch-preview-row{
+      display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;
+      padding:13px 2px;border-bottom:1px solid #202020;cursor:pointer;
+    }
+    .watch-preview-row:hover{background:#0a0a0a}
+    .watch-preview-row .symbol{font-weight:800}
+    .watch-preview-row .company{color:#777;font-size:.74rem}
+    .footer{color:#555;border-top:1px solid #1b1b1b;padding-top:14px}
+    @media(max-width:900px){
+      .movers-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .home-grid,.stocks-layout{grid-template-columns:1fr}
+      .nav{display:none}
+      .bottom-nav{display:grid}
+      .top-actions #settingsBtn{display:none}
+      .stock-list{max-height:440px}
+    }
+    @media(max-width:560px){
+      .app{padding:0 14px 90px}
+      .topbar{min-height:62px}
+      .brand small{display:none}
+      .top-actions .btn{font-size:.72rem;padding:7px 10px}
+      .market-hero{align-items:center}
+      .hero-title{font-size:2.45rem}
+      .hero-sub{font-size:.86rem}
+      .movers-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-right:-14px;padding-right:14px}
+      .mover-card{min-width:185px;scroll-snap-align:start}
+      .stats{grid-template-columns:1fr 1fr}
+      .stat:nth-child(3){border-left:0}
+      .stat:nth-child(n+3){border-top:1px solid #202020}
+      .stock-list{max-height:360px}
+      #stockSearch{min-width:100%;width:100%}
+      .toolbar .field:first-child{flex:1 0 100%}
+      .prediction-box{grid-template-columns:1fr 1fr}
+      .chart-wrap{height:315px}
+      .detail-grid{grid-template-columns:1fr 1fr}
+    }
+
 </style>
 </head>
 <body>
@@ -151,60 +366,88 @@
     <div class="brand">
       <img src="icon-192.png" alt="">
       <div>
-        <h1>Marcelo Stock Hunter V6</h1>
-        <small>More stocks • faster search • richer charts • historical-analog outlook</small>
+        <h1>Marcelo Markets V7</h1>
+        <small>Markets • watchlist • charts • research outlooks</small>
       </div>
     </div>
     <div class="top-actions">
-      <button id="notifyBtn" class="btn">🔔 Enable alerts</button>
-      <button id="settingsBtn" class="btn">⚙️ Settings</button>
+      <button id="notifyBtn" class="btn">Alerts</button>
+      <button id="settingsBtn" class="btn">Settings</button>
     </div>
   </header>
 
   <div class="notice">
-    Research tool only. V6's 5-day outlook summarizes historical analogs with similar price/volume setups. It is not a guarantee, price target, or recommendation.
+    Research mode only. V7 does not place trades or hold money. Its outlooks are historical-data estimates, not guarantees or recommendations.
   </div>
 
   <nav class="nav">
-    <button class="btn active" data-view="home">🏠 Home</button>
-    <button class="btn" data-view="stocks">📈 Stocks</button>
-    <button class="btn" data-view="offers">🎁 Free-stock offers</button>
-    <button class="btn" data-view="watchlist">⭐ Watchlist</button>
+    <button class="btn active" data-view="home">Home</button>
+    <button class="btn" data-view="stocks">Markets</button>
+    <button class="btn" data-view="offers">Rewards</button>
+    <button class="btn" data-view="watchlist">Watchlist</button>
   </nav>
 
   <main>
     <section id="homeView">
+      <div class="market-hero">
+        <div>
+          <div class="eyebrow">MARKET RESEARCH</div>
+          <div class="hero-title">Your market dashboard</div>
+          <div class="hero-sub">Track prices, spot movers, save a watchlist, and inspect historical outlooks.</div>
+        </div>
+        <button class="round-action" data-jump="stocks" aria-label="Search markets">⌕</button>
+      </div>
+
+      <div class="movers-strip" id="moversStrip"></div>
+
       <div class="grid stats">
-        <div class="stat"><div class="label">Tracked stocks</div><div class="value" id="homeTracked">—</div></div>
+        <div class="stat"><div class="label">Markets tracked</div><div class="value" id="homeTracked">—</div></div>
         <div class="stat"><div class="label">Under $20</div><div class="value" id="homeUnder20">—</div></div>
-        <div class="stat"><div class="label">Free-stock offers</div><div class="value" id="homeOffers">—</div></div>
-        <div class="stat"><div class="label">New offers</div><div class="value" id="homeNew">—</div></div>
+        <div class="stat"><div class="label">Rewards found</div><div class="value" id="homeOffers">—</div></div>
+        <div class="stat"><div class="label">New rewards</div><div class="value" id="homeNew">—</div></div>
       </div>
 
       <div class="grid home-grid">
         <div class="panel">
           <div class="section-head">
-            <h2>Top research candidates</h2>
-            <span class="muted">Heuristic ranking</span>
+            <h2>Discover</h2>
+            <span class="muted">Research signals</span>
           </div>
           <div id="candidateTable"></div>
         </div>
         <div class="panel">
           <div class="section-head">
-            <h2>Latest new offers</h2>
-            <button class="btn" data-jump="offers">See all</button>
+            <h2>Rewards</h2>
+            <button class="btn" data-jump="offers">View all</button>
           </div>
           <div id="homeOffersList"></div>
         </div>
       </div>
+
+      <div class="panel home-watch-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">WATCHLIST</div>
+            <h2>Your list</h2>
+          </div>
+          <button class="text-link" data-jump="watchlist">View all</button>
+        </div>
+        <div id="homeWatchlistPreview"></div>
+      </div>
     </section>
 
     <section id="stocksView" hidden>
-      <div class="panel">
-        <div class="toolbar">
+      <div class="market-screen-head">
+        <div>
+          <div class="eyebrow">MARKETS</div>
+          <h1>Explore stocks</h1>
+        </div>
+      </div>
+      <div class="panel market-panel">
+        <div class="toolbar search-toolbar">
           <div class="field">
-            <label>Search tracked stocks</label>
-            <input id="stockSearch" placeholder="Ticker, company or sector — press / to search" />
+            <label>Search</label>
+            <input id="stockSearch" placeholder="Search ticker, company, or sector" />
           </div>
           <div class="field">
             <label>Max share price</label>
@@ -242,7 +485,7 @@
               <option value="marketcap">Market cap</option>
             </select>
           </div>
-          <button id="refreshStocks" class="btn primary">↻ Refresh prices</button>
+          <button id="refreshStocks" class="btn primary">Refresh</button>
         </div>
 
         <div class="quick-filters" id="quickFilters">
@@ -272,7 +515,7 @@
             </div>
             <div id="predictionBox" class="prediction-box" hidden></div>
             <div class="chart-toolbar">
-              <span class="muted">Chart</span>
+              <span class="muted">Indicators</span>
               <button class="btn active" id="togglePrice">Price</button>
               <button class="btn active" id="toggleSma20">SMA 20</button>
               <button class="btn" id="toggleSma50">SMA 50</button>
@@ -296,7 +539,10 @@
     </section>
 
     <section id="offersView" hidden>
-      <div class="panel">
+      <div class="market-screen-head">
+        <div><div class="eyebrow">REWARDS</div><h1>Brokerage rewards</h1></div>
+      </div>
+      <div class="panel market-panel">
         <div class="toolbar">
           <div class="field">
             <label>Filter</label>
@@ -319,11 +565,14 @@
     </section>
 
     <section id="watchlistView" hidden>
-      <div class="panel">
+      <div class="market-screen-head">
+        <div><div class="eyebrow">WATCHLIST</div><h1>Saved stocks</h1></div>
+      </div>
+      <div class="panel market-panel">
         <div class="section-head">
           <div>
-            <h2>Your watchlist</h2>
-            <div class="muted">Saved locally on this device.</div>
+            <h2>My watchlist</h2>
+            <div class="muted">Saved on this device.</div>
           </div>
           <button id="clearWatchlist" class="btn">Clear</button>
         </div>
@@ -332,8 +581,15 @@
     </section>
   </main>
 
+  <nav class="bottom-nav" aria-label="App navigation">
+    <button class="bottom-tab active" data-bottom-view="home"><span>⌂</span><small>Home</small></button>
+    <button class="bottom-tab" data-bottom-view="stocks"><span>⌕</span><small>Markets</small></button>
+    <button class="bottom-tab" data-bottom-view="watchlist"><span>☆</span><small>Watchlist</small></button>
+    <button class="bottom-tab" data-bottom-view="offers"><span>◇</span><small>Rewards</small></button>
+  </nav>
+
   <div class="footer">
-    V6 • Prices may be delayed. The outlook uses historical price/volume patterns only. This app never places trades or moves money.
+    V7 • Prices may be delayed. Research-only market dashboard — no trading or custody.
   </div>
 </div>
 
@@ -514,7 +770,7 @@ function saveWatchlist(){
 }
 function toggleWatch(ticker){
   if(watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
-  saveWatchlist(); renderStocks(); renderWatchlist();
+  saveWatchlist(); renderStocks(); renderWatchlist(); renderHome();
 }
 
 function switchView(view){
@@ -522,12 +778,16 @@ function switchView(view){
     $(v+"View").hidden=v!==view;
   });
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  document.querySelectorAll("[data-bottom-view]").forEach(b=>b.classList.toggle("active",b.dataset.bottomView===view));
+  window.scrollTo({top:0,behavior:"smooth"});
   if(view==="stocks") renderStocks();
   if(view==="offers") renderOffers();
   if(view==="watchlist") renderWatchlist();
+  if(view==="home") renderHome();
 }
 
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));
+document.querySelectorAll("[data-bottom-view]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.bottomView)));
 document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.jump)));
 
 async function refreshOffers(){
@@ -589,12 +849,63 @@ $("notifyBtn").addEventListener("click",async()=>{
   if(permission==="granted") notifyNewOffers();
 });
 
+
+function openStock(ticker){
+  selectedTicker=ticker;
+  switchView("stocks");
+  renderStocks();
+  requestAnimationFrame(()=>{
+    drawSelected();
+    const row=[...document.querySelectorAll(".stock-row")].find(r=>r.dataset.ticker===ticker);
+    row?.scrollIntoView({block:"nearest",behavior:"smooth"});
+  });
+}
+
+function renderMoverStrip(stocks){
+  const movers=[...stocks]
+    .filter(s=>Number.isFinite(Number(s.change_pct)) && Number(s.price)>0)
+    .sort((a,b)=>Math.abs(Number(b.change_pct))-Math.abs(Number(a.change_pct)))
+    .slice(0,4);
+
+  $("moversStrip").innerHTML=movers.length?movers.map(s=>`
+    <div class="mover-card" data-open-stock="${esc(s.ticker)}">
+      <div class="mover-top">
+        <div><div class="mover-ticker">${esc(s.ticker)}</div><div class="mover-name">${esc(s.name||s.sector||"")}</div></div>
+        <div class="mover-change ${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</div>
+      </div>
+      <div class="mover-price">${money(s.price)}</div>
+    </div>`).join(""):'<div class="muted">Market data will appear after the price feed loads.</div>';
+
+  document.querySelectorAll("[data-open-stock]").forEach(el=>{
+    el.addEventListener("click",()=>openStock(el.dataset.openStock));
+  });
+}
+
+function renderHomeWatchlist(stocks){
+  const rows=stocks.filter(s=>watchlist.has(s.ticker)).slice(0,6);
+  $("homeWatchlistPreview").innerHTML=rows.length?`
+    <div class="watch-preview-list">
+      ${rows.map(s=>`
+        <div class="watch-preview-row" data-preview-stock="${esc(s.ticker)}">
+          <div><div class="symbol">${esc(s.ticker)}</div><div class="company">${esc(s.name||s.sector||"")}</div></div>
+          <div>${money(s.price)}</div>
+          <div class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</div>
+        </div>`).join("")}
+    </div>`:'<div class="empty">Tap the star beside a stock to build your watchlist.</div>';
+
+  document.querySelectorAll("[data-preview-stock]").forEach(el=>{
+    el.addEventListener("click",()=>openStock(el.dataset.previewStock));
+  });
+}
+
 function renderHome(){
   const stocks=decoratedStocks.length ? decoratedStocks : decorateStocks(market.stocks||[]);
   $("homeTracked").textContent=stocks.length||"—";
   $("homeUnder20").textContent=stocks.filter(s=>Number(s.price)<=20).length;
   $("homeOffers").textContent=offers.length;
   $("homeNew").textContent=offers.filter(o=>o["New"]).length;
+  renderMoverStrip(stocks);
+  renderHomeWatchlist(stocks);
 
   const candidates=[...stocks]
     .filter(s=>Number(s.price)>0 && Number(s.price)<=50)
@@ -606,7 +917,7 @@ function renderHome(){
   }else{
     $("candidateTable").innerHTML=`<table class="table">
       <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Outlook</th><th>Score</th></tr></thead>
-      <tbody>${candidates.map(s=>`<tr>
+      <tbody>${candidates.map(s=>`<tr data-candidate-stock="${esc(s.ticker)}">
         <td><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></td>
         <td>${money(s.price)}</td>
         <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
@@ -614,6 +925,9 @@ function renderHome(){
         <td class="score">${s._score}/100</td>
       </tr>`).join("")}</tbody>
     </table>`;
+    document.querySelectorAll("[data-candidate-stock]").forEach(el=>{
+      el.addEventListener("click",()=>openStock(el.dataset.candidateStock));
+    });
   }
 
   const latest=[...offers].sort((a,b)=>(!!b["New"]-!!a["New"])||((b["Hunter Score"]||0)-(a["Hunter Score"]||0))).slice(0,4);
@@ -673,7 +987,7 @@ function renderStocks(){
   if(!rows.some(s=>s.ticker===selectedTicker)) selectedTicker=rows[0].ticker;
 
   $("stockList").innerHTML=rows.map(s=>`
-    <div class="stock-row ${selectedTicker===s.ticker?"active":""}">
+    <div class="stock-row ${selectedTicker===s.ticker?"active":""}" data-ticker="${esc(s.ticker)}">
       <button class="star ${watchlist.has(s.ticker)?"on":""}" data-star="${esc(s.ticker)}" title="Watchlist">★</button>
       <button class="stock-main" data-select="${esc(s.ticker)}">
         <strong>${esc(s.ticker)}</strong>
@@ -785,9 +1099,9 @@ function drawSelected(){
   // Area under price
   if(chartShowPrice){
     const rising=priceVals.at(-1)>=priceVals[0];
-    const stroke=rising?"#4ade80":"#f87171";
+    const stroke=rising?"#00c805":"#ff4d4f";
     const grad=ctx.createLinearGradient(0,padT,0,padT+plotH);
-    grad.addColorStop(0,rising?"rgba(74,222,128,.22)":"rgba(248,113,113,.20)");
+    grad.addColorStop(0,rising?"rgba(0,200,5,.18)":"rgba(255,77,79,.16)");
     grad.addColorStop(1,"rgba(15,23,42,0)");
     ctx.beginPath();
     priceVals.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v))});
@@ -807,8 +1121,8 @@ function drawSelected(){
     });
     ctx.strokeStyle=color;ctx.lineWidth=width*dpr;ctx.stroke();
   }
-  if(chartShowSma20) drawSeries(sma20,"#60a5fa",1.6);
-  if(chartShowSma50) drawSeries(sma50,"#facc15",1.6);
+  if(chartShowSma20) drawSeries(sma20,"#8f8f8f",1.4);
+  if(chartShowSma50) drawSeries(sma50,"#d4d4d4",1.3);
 
   ctx.fillStyle="#94a3b8";ctx.font=`${10*dpr}px system-ui`;
   ctx.fillText(hist[0].date,padL,c.height-8*dpr);

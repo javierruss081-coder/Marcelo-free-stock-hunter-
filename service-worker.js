@@ -1,4 +1,4 @@
-const CACHE = "marcelo-v6";
+const CACHE = "marcelo-v7";
 const STATIC = [
   "./",
   "./index.html",
