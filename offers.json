@@ -10,8 +10,8 @@
     "Why": "official brokerage source; no stated cash deposit requirement detected",
     "Source URL": "https://robinhood.com/us/en/support/articles/open-account-get-free-stock/",
     "First Seen": "2026-10-11T21:17:51+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 21,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 22,
     "New": false
   },
   {
@@ -25,8 +25,8 @@
     "Why": "official brokerage source; official free-stock rules found",
     "Source URL": "https://www.webull.com/help/faq/541-Free-Stock-Allocation-Rules",
     "First Seen": "2026-10-11T21:17:51+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 21,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 22,
     "New": false
   },
   {
@@ -40,8 +40,8 @@
     "Why": "official brokerage source",
     "Source URL": "https://support.sofi.com/hc/en-us/articles/sofi-invest-promotions-summary",
     "First Seen": "2026-10-21T14:42:28+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 9,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 10,
     "New": false
   },
   {
@@ -55,8 +55,8 @@
     "Why": "official brokerage source; free-stock/ETF referral program found",
     "Source URL": "https://help.public.com/en/articles/2711925-public-referral-program",
     "First Seen": "2026-10-11T21:53:26+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 19,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 20,
     "New": false
   },
   {
@@ -70,23 +70,23 @@
     "Why": "official brokerage source; official 2026 free-stock tiers found",
     "Source URL": "https://www.moomoo.com/us/support/topic4_410",
     "First Seen": "2026-10-11T21:53:26+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 19,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 20,
     "New": false
   },
   {
     "id": "97ec9ccbf8a75b01740cd3da",
     "Broker": "E*TRADE",
     "Offer": "New brokerage account cash bonus",
-    "Reward": "Cash bonus — verify current tier",
+    "Reward": "$50–$1,500 cash bonus",
     "Requirement": "Deposit required: $1,000+; promo code required",
-    "Status": "Advertised through 2026-10-31",
+    "Status": "Verify current availability",
     "Hunter Score": 72,
     "Why": "official brokerage source; official brokerage promo page found",
     "Source URL": "https://us.etrade.com/promo/brokerage",
     "First Seen": "2026-10-11T21:53:26+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 19,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 20,
     "New": false
   },
   {
@@ -100,8 +100,8 @@
     "Why": "official brokerage source; official referred-friend bonus found",
     "Source URL": "https://www.schwab.com/referral",
     "First Seen": "2026-10-11T21:53:26+00:00",
-    "Last Seen": "2026-10-29T15:00:31+00:00",
-    "Times Seen": 19,
+    "Last Seen": "2026-10-30T15:00:12+00:00",
+    "Times Seen": 20,
     "New": false
   }
 ]
