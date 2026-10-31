@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0b1220" />
-  <title>Marcelo Markets V8.1</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-u3vdgcUC9pF0AbmlSCIoB4U9a7iNzrkxmYikh4JRJMo='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
+  <meta name="theme-color" content="#060606" />
+  <title>Marcelo Markets V9.1</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="manifest" href="manifest.json?v=8.1" />
-  <link rel="icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json?v=9.1" />
+  <link rel="icon" href="icon-192.png?v=9.1" />
   <style>
     :root{
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -459,28 +460,57 @@
       .dialog-actions{flex-wrap:wrap}
     }
 
-</style>
+
+    [hidden]{display:none!important}
+    .account-btn{border-color:#00c805!important;color:#00c805!important}
+    .account-banner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+      background:#0c1710;border:1px solid #1e4225;border-radius:12px;padding:10px 14px;margin:0 0 16px;
+      color:#c4dcc8;font-size:.84rem}
+    .account-banner[hidden]{display:none!important}
+    .auth-modal{padding:6px;max-width:540px}.auth-modal h2{margin:0 0 10px}
+    .auth-modal .field{margin:10px 0}.auth-modal input{width:100%;min-height:44px}
+    .auth-help{color:#a4aca6;font-size:.88rem;margin-bottom:14px}
+    .auth-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+    .auth-actions.minor{justify-content:space-between;align-items:center}
+    .auth-message{min-height:1.4rem;color:#c1e9c4;font-size:.86rem;margin:10px 0 0;overflow-wrap:anywhere}
+    .auth-message.error{color:#ff9393}
+    .private-outlooks{margin-top:30px;border-top:1px solid #242424;padding-top:20px}
+    .saved-outlook-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:13px 2px;border-bottom:1px solid #222}
+    .saved-outlook-row .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .account-locked{color:#999;padding:24px;text-align:center;border:1px dashed #303030;border-radius:12px}
+    .auth-setup-note{color:#ffe59f;font-size:.8rem}
+    #saveOutlookBtn:disabled{opacity:.5;cursor:not-allowed}
+    @media(max-width:620px){.account-banner{align-items:stretch}.account-banner button{width:100%}
+      .saved-outlook-row{flex-direction:column;align-items:flex-start}}
+
+  </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <img src="logo.png?v=1" alt="Marcelo Markets logo">
+      <img src="logo.png?v=9" alt="Marcelo Markets miner logo">
       <div>
-        <h1>Marcelo Markets V8.1</h1>
-        <small>Portfolio • markets • news • research</small>
+        <h1>Marcelo Markets V9.1</h1>
+        <small>One app • private accounts • every device</small>
       </div>
     </div>
     <div class="top-actions">
+      <button id="accountBtn" class="btn account-btn" type="button">Sign in</button>
       <button id="notifyBtn" class="btn">Alerts</button>
       <button id="settingsBtn" class="btn">Settings</button>
     </div>
   </header>
 
   <div class="notice">
-    Research mode only. V8 includes a local paper portfolio and historical-data outlooks. It does not place trades, hold money, or guarantee future returns.
+    100% free to use • Research and paper investing only. Stock forecasts are estimates, not investment advice. No real-money trading or deposits.
   </div>
 
+  <div id="accountBanner" class="account-banner" role="status" aria-live="polite">
+    Market data is public. Sign in to save your own private watchlist, paper portfolio, and outlooks.
+    <button id="bannerSignIn" type="button" class="btn">Create free account</button>
+  </div>
   <nav class="nav">
     <button class="btn active" data-view="home">Home</button>
     <button class="btn" data-view="stocks">Markets</button>
@@ -503,7 +533,7 @@
         </div>
         <div class="portfolio-chart-wrap">
           <canvas id="portfolioChart"></canvas>
-          <div class="portfolio-empty" id="portfolioEmpty">Your local paper portfolio performance will appear here.</div>
+          <div class="portfolio-empty" id="portfolioEmpty">Your private paper portfolio will appear here after sign-in.</div>
         </div>
       </div>
 
@@ -637,6 +667,7 @@
               </div>
               <div class="profile-actions">
                 <button id="profileWatchBtn" class="btn">☆ Watch</button>
+                <button id="saveOutlookBtn" class="btn">Save outlook</button>
                 <button id="paperPositionBtn" class="btn primary">Paper position</button>
               </div>
             </div>
@@ -665,7 +696,7 @@
               <section class="profile-section">
                 <div class="section-head">
                   <div><div class="eyebrow">LATEST</div><h2>News</h2></div>
-                  <a id="liveNewsLink" class="text-link" href="#" target="_blank" rel="noopener">Search live news ↗</a>
+                  <a id="liveNewsLink" class="text-link" href="#" target="_blank" rel="noopener noreferrer">Search live news ↗</a>
                 </div>
                 <div id="stockNews" class="news-list">
                   <div class="empty">Select a stock to view news.</div>
@@ -718,11 +749,15 @@
         <div class="section-head">
           <div>
             <h2>My watchlist</h2>
-            <div class="muted">Saved on this device.</div>
+            <div class="muted">Saved privately to your account across devices.</div>
           </div>
           <button id="clearWatchlist" class="btn">Clear</button>
         </div>
         <div id="watchlistTable"></div>
+      </div>
+      <div class="private-outlooks">
+        <div class="section-head"><div><div class="eyebrow">MY RESEARCH</div><h2>Saved stock outlooks</h2></div></div>
+        <div id="savedOutlooks" aria-live="polite"></div>
       </div>
     </section>
   </main>
@@ -735,10 +770,43 @@
   </nav>
 
   <div class="footer">
-    V8 • Prices/news may be delayed. Paper portfolio only — no brokerage account, trading, deposits, or custody.
+    V9 • Prices/news may be delayed. Paper portfolio only — no real-money trades, deposits, or custody.
   </div>
 </div>
 
+
+
+<dialog id="authDialog" aria-labelledby="authTitle">
+  <div class="auth-modal">
+    <div class="dialog-top">
+      <div><div class="eyebrow">MARCELO MARKETS V9</div><h2 id="authTitle">Your free account</h2></div>
+      <button type="button" id="closeAuth" class="btn" aria-label="Close account dialog">✕</button>
+    </div>
+    <div id="authHelp" class="auth-help">Your watchlist, paper positions, and saved outlooks are private to your login.</div>
+    <div id="authSignedOut">
+      <label class="field">Email <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" /></label>
+      <label class="field">Password <input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 8 characters" minlength="8" /></label>
+      <div class="auth-actions">
+        <button id="signInBtn" type="button" class="btn primary">Sign in</button>
+        <button id="signUpBtn" type="button" class="btn">Create free account</button>
+      </div>
+      <div class="auth-actions minor">
+        <button id="forgotPasswordBtn" type="button" class="text-link">Forgot password?</button>
+        <button id="googleLoginBtn" type="button" class="btn">Continue with Google</button>
+      </div>
+    </div>
+    <div id="authPasswordReset" hidden>
+      <label class="field">New password <input id="newPassword" type="password" autocomplete="new-password" minlength="8" /></label>
+      <button id="updatePasswordBtn" type="button" class="btn primary">Update password</button>
+    </div>
+    <div id="authSignedIn" hidden>
+      <p>Signed in as <strong id="currentEmail"></strong></p>
+      <p class="muted">Your personal lists sync only to this account. Sign out on a shared computer.</p>
+      <button id="signOutBtn" type="button" class="btn">Sign out</button>
+    </div>
+    <p id="authMessage" class="auth-message" aria-live="polite"></p>
+  </div>
+</dialog>
 
 <dialog id="positionDialog">
   <form method="dialog" class="dialog-card">
@@ -795,14 +863,27 @@
   </form>
 </dialog>
 
+<script src="./config.js?v=9.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.js"></script>
 <script>
 const $ = id => document.getElementById(id);
+// Non-personal settings only. Private watchlists/positions never use local browser storage.
+const safeStore = (()=>{
+  try{
+    const probe="__marcelo_storage_check__";
+    localStorage.setItem(probe,"1");localStorage.removeItem(probe);
+    return localStorage;
+  }catch{
+    const mem=new Map();
+    return {getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,String(v)),removeItem:k=>mem.delete(k)};
+  }
+})();
 let market = {updated_at:null,stocks:[]};
 let offers = [];
 let selectedTicker = null;
 let chartRange = 22;
-let watchlist = new Set(JSON.parse(localStorage.getItem("v5Watchlist") || "[]"));
-let paperPositions = JSON.parse(localStorage.getItem("v8PaperPositions") || "{}");
+let watchlist = new Set(); // V9: only cloud data from the authenticated user
+let paperPositions = {}; // V9: only cloud data from the authenticated user
 
 function esc(v){
   return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -813,7 +894,7 @@ function money(v){
   if(Math.abs(n)>=1e12) return "$"+(n/1e12).toFixed(2)+"T";
   if(Math.abs(n)>=1e9) return "$"+(n/1e9).toFixed(2)+"B";
   if(Math.abs(n)>=1e6) return "$"+(n/1e6).toFixed(1)+"M";
-  return "$"+n.toFixed(n<10?3:2);
+  return "$"+n.toFixed(2);
 }
 function compact(v){
   const n=Number(v); if(!Number.isFinite(n)) return "—";
@@ -827,20 +908,52 @@ function pct(v){
 const COMPANY_DOMAINS = {"AAPL":"apple.com","MSFT":"microsoft.com","NVDA":"nvidia.com","AMD":"amd.com","INTC":"intel.com","META":"meta.com","GOOGL":"google.com","GOOG":"google.com","AMZN":"amazon.com","TSLA":"tesla.com","NFLX":"netflix.com","DIS":"disney.com","UBER":"uber.com","LYFT":"lyft.com","ABNB":"airbnb.com","BKNG":"booking.com","EXPE":"expedia.com","SPOT":"spotify.com","SNAP":"snap.com","PINS":"pinterest.com","RBLX":"roblox.com","RDDT":"reddit.com","SHOP":"shopify.com","CRM":"salesforce.com","ORCL":"oracle.com","IBM":"ibm.com","NOW":"servicenow.com","PLTR":"palantir.com","SNOW":"snowflake.com","NET":"cloudflare.com","DDOG":"datadoghq.com","MDB":"mongodb.com","PATH":"uipath.com","PANW":"paloaltonetworks.com","CRWD":"crowdstrike.com","FTNT":"fortinet.com","OKTA":"okta.com","DOCU":"docusign.com","ZM":"zoom.com","TEAM":"atlassian.com","ADSK":"autodesk.com","QCOM":"qualcomm.com","AVGO":"broadcom.com","TXN":"ti.com","MU":"micron.com","AMAT":"appliedmaterials.com","LRCX":"lamresearch.com","ARM":"arm.com","DELL":"dell.com","HPQ":"hp.com","CSCO":"cisco.com","PYPL":"paypal.com","HOOD":"robinhood.com","SOFI":"sofi.com","COIN":"coinbase.com","JPM":"jpmorganchase.com","BAC":"bankofamerica.com","C":"citi.com","WFC":"wellsfargo.com","GS":"goldmansachs.com","MS":"morganstanley.com","SCHW":"schwab.com","V":"visa.com","MA":"mastercard.com","AXP":"americanexpress.com","BLK":"blackrock.com","BX":"blackstone.com","LLY":"lilly.com","JNJ":"jnj.com","PFE":"pfizer.com","MRNA":"modernatx.com","MRK":"merck.com","ABBV":"abbvie.com","UNH":"unitedhealthgroup.com","CVS":"cvshealth.com","HIMS":"hims.com","ISRG":"intuitive.com","XOM":"exxonmobil.com","CVX":"chevron.com","COP":"conocophillips.com","SLB":"slb.com","OXY":"oxy.com","BA":"boeing.com","GE":"ge.com","CAT":"caterpillar.com","DE":"deere.com","HON":"honeywell.com","LMT":"lockheedmartin.com","RTX":"rtx.com","UPS":"ups.com","FDX":"fedex.com","F":"ford.com","GM":"gm.com","RIVN":"rivian.com","LCID":"lucidmotors.com","NIO":"nio.com","XPEV":"xpeng.com","LI":"lixiang.com","WMT":"walmart.com","TGT":"target.com","COST":"costco.com","KO":"coca-colacompany.com","PEP":"pepsico.com","SBUX":"starbucks.com","MCD":"mcdonalds.com","NKE":"nike.com","HD":"homedepot.com","LOW":"lowes.com","EBAY":"ebay.com","BABA":"alibabagroup.com","PDD":"pddholdings.com","MELI":"mercadolibre.com","CMG":"chipotle.com","LULU":"lululemon.com","DKNG":"draftkings.com","CHWY":"chewy.com","ETSY":"etsy.com","T":"att.com","VZ":"verizon.com","TMUS":"t-mobile.com","CMCSA":"comcast.com","EA":"ea.com","TTWO":"take2games.com","O":"realtyincome.com","PLD":"prologis.com","AMT":"americantower.com","EQIX":"equinix.com","NEE":"nexteraenergy.com","DUK":"duke-energy.com","AEP":"aep.com","FSLR":"firstsolar.com","ENPH":"enphase.com","FCX":"fcx.com","NEM":"newmont.com","NUE":"nucor.com"};
 
 function logoMarkup(s, cls="company-logo"){
+  // Privacy-first: no third-party logo requests revealing visitors' IP or stock interests.
   const ticker=String(s?.ticker||"").toUpperCase();
-  const domain=COMPANY_DOMAINS[ticker];
   const fallback=esc((ticker||"?").slice(0,3));
-  if(!domain) return `<div class="${cls}"><span class="logo-fallback">${fallback}</span></div>`;
-  const url=`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
-  return `<div class="${cls}">
-    <img src="${url}" alt="" loading="lazy"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-    <span class="logo-fallback" style="display:none">${fallback}</span>
-  </div>`;
+  const logoClass=["company-logo","table-logo","profile-logo"].includes(cls)?cls:"company-logo";
+  return `<div class="${logoClass}"><span class="logo-fallback">${fallback}</span></div>`;
 }
 
-function savePaperPositions(){
-  localStorage.setItem("v8PaperPositions",JSON.stringify(paperPositions));
+function safeExternalUrl(raw){
+  try {
+    const u=new URL(String(raw||""));
+    if(u.protocol!=="https:" || !u.hostname || u.username || u.password) return "#";
+    return u.href;
+  } catch { return "#"; }
+}
+
+function safeFeedUrl(value,fallback){
+  // Public data feeds must come from this app's own GitHub Pages origin + repo path.
+  if(!value) return fallback;
+  try {
+    const url=new URL(String(value),location.href);
+    const base=new URL("./",location.href);
+    if(url.origin!==location.origin || !url.href.startsWith(base.href) || !/\.json$/i.test(url.pathname)) return fallback;
+    if(url.username || url.password) return fallback;
+    return url.href;
+  }catch {return fallback;}
+}
+
+async function savePaperPosition(ticker, shares, avgCost){
+  if(!requireAccount()) return false;
+  if(!/^[A-Z0-9.^-]{1,12}$/.test(ticker) || !(shares>0) || !(avgCost>=0)) return false;
+  const userId=activeUser.id;
+  const {error}=await db.from("portfolio_positions").upsert(
+    {user_id:userId,ticker,shares,avg_cost:avgCost,updated_at:new Date().toISOString()},
+    {onConflict:"user_id,ticker"}
+  );
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed; try again."));return false;}
+  paperPositions[ticker]={shares,avgCost};
+  refreshPersonalUI();
+  return true;
+}
+async function deletePaperPosition(ticker){
+  if(!requireAccount()) return false;
+  const userId=activeUser.id;
+  const {error}=await db.from("portfolio_positions").delete().eq("user_id",userId).eq("ticker",ticker);
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed; try again."));return false;}
+  delete paperPositions[ticker];refreshPersonalUI();return true;
 }
 
 function positionFor(ticker){
@@ -950,7 +1063,7 @@ function serverOutlook(s){
   if(!p || !p.label) return trendOutlook(s);
   return {
     label:p.label,
-    key:p.key || "neutral",
+    key:["bull","bear","neutral"].includes(p.key)?p.key:"neutral",
     strength:Number(p.confidence||0),
     confidence:Number(p.confidence||0),
     upRate:Number(p.up_rate_pct),
@@ -979,12 +1092,18 @@ let chartShowPrice=true;
 let chartShowSma20=true;
 let chartShowSma50=false;
 let chartPoints=[];
-function saveWatchlist(){
-  localStorage.setItem("v5Watchlist",JSON.stringify([...watchlist]));
-}
-function toggleWatch(ticker){
-  if(watchlist.has(ticker)) watchlist.delete(ticker); else watchlist.add(ticker);
-  saveWatchlist(); renderStocks(); renderWatchlist(); renderHome();
+async function toggleWatch(ticker){
+  if(!requireAccount()) return;
+  if(!/^[A-Z0-9.^-]{1,12}$/.test(ticker)) return;
+  const userId=activeUser.id;
+  const had=watchlist.has(ticker);
+  const req=had
+    ? db.from("watchlists").delete().eq("user_id",userId).eq("ticker",ticker)
+    : db.from("watchlists").upsert({user_id:userId,ticker},{onConflict:"user_id,ticker"});
+  const {error}=await req;
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed"));return;}
+  if(had) watchlist.delete(ticker); else watchlist.add(ticker);
+  refreshPersonalUI();
 }
 
 function switchView(view){
@@ -1005,7 +1124,7 @@ document.querySelectorAll("[data-bottom-view]").forEach(b=>b.addEventListener("c
 document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.jump)));
 
 async function refreshOffers(){
-  const url=localStorage.getItem("v5OfferFeed") || "./offers.json";
+  const url=safeFeedUrl(safeStore.getItem("v5OfferFeed"),"./offers.json");
   $("offerStatus").textContent="Refreshing offers…";
   try{
     const r=await fetch(url,{cache:"no-store"});
@@ -1022,7 +1141,7 @@ async function refreshOffers(){
 }
 
 async function refreshStocks(){
-  const url=localStorage.getItem("v5MarketFeed") || "./market_data.json";
+  const url=safeFeedUrl(safeStore.getItem("v5MarketFeed"),"./market_data.json");
   $("stockStatus").textContent="Refreshing stock prices…";
   try{
     const r=await fetch(url,{cache:"no-store"});
@@ -1042,7 +1161,7 @@ async function refreshStocks(){
 
 function notifyNewOffers(){
   if(!("Notification" in window) || Notification.permission!=="granted") return;
-  const notified=new Set(JSON.parse(localStorage.getItem("v5NotifiedOffers")||"[]"));
+  const notified=new Set(JSON.parse(safeStore.getItem("v5NotifiedOffers")||"[]"));
   const fresh=offers.filter(o=>o["New"] && o.id && !notified.has(o.id));
   fresh.slice(0,4).forEach(o=>{
     try{
@@ -1053,7 +1172,7 @@ function notifyNewOffers(){
       notified.add(o.id);
     }catch{}
   });
-  localStorage.setItem("v5NotifiedOffers",JSON.stringify([...notified]));
+  safeStore.setItem("v5NotifiedOffers",JSON.stringify([...notified]));
 }
 
 $("notifyBtn").addEventListener("click",async()=>{
@@ -1100,6 +1219,9 @@ function renderMoverStrip(stocks){
 
 function renderHomeWatchlist(stocks){
   const rows=stocks.filter(s=>watchlist.has(s.ticker)).slice(0,6);
+  if(!activeUser){
+    $("homeWatchlistPreview").innerHTML='<div class="account-locked">Your personal watchlist appears here after signing in.</div>';return;
+  }
   $("homeWatchlistPreview").innerHTML=rows.length?`
     <div class="watch-preview-list">
       ${rows.map(s=>`
@@ -1162,6 +1284,20 @@ function drawPortfolioChart(series){
 }
 
 function renderPaperPortfolio(stocks){
+  if(accountLoading && activeUser){
+    $("paperPortfolioValue").textContent="Loading…";
+    $("paperPortfolioDay").textContent="Loading your private account data…";
+    $("paperPortfolioGain").textContent="";
+    $("portfolioEmpty").hidden=false;
+    return;
+  }
+  if(!activeUser){
+    $("paperPortfolioValue").textContent="Private portfolio";
+    $("paperPortfolioDay").textContent="Sign in to view your own paper investments.";
+    $("paperPortfolioGain").textContent="Your investments are not visible to other accounts.";
+    $("portfolioEmpty").hidden=false;
+    const c=$("portfolioChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);return;
+  }
   const active=stocks.map(s=>({s,p:positionFor(s.ticker)})).filter(x=>x.p);
   const value=active.reduce((sum,{s,p})=>sum+p.shares*Number(s.price||0),0);
   const prev=active.reduce((sum,{s,p})=>sum+p.shares*Number(s.previous_close||s.price||0),0);
@@ -1175,7 +1311,7 @@ function renderPaperPortfolio(stocks){
   if(!active.length){
     $("paperPortfolioDay").textContent="Add a paper position to start tracking.";
     $("paperPortfolioDay").className="portfolio-change";
-    $("paperPortfolioGain").textContent="Positions stay only on this device.";
+    $("paperPortfolioGain").textContent="Sign in to sync your paper positions across devices.";
     $("portfolioEmpty").hidden=false;
     const c=$("portfolioChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);
     return;
@@ -1190,12 +1326,13 @@ function renderPaperPortfolio(stocks){
 }
 
 function openPositionDialog(ticker){
+  if(!requireAccount()) return;
   const s=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).find(x=>x.ticker===ticker);
   if(!s) return;
   const p=positionFor(ticker);
   $("positionTicker").value=ticker;
   $("positionDialogTitle").textContent=`${p?"Edit":"Add"} ${ticker} paper position`;
-  $("positionDialogPrice").textContent=`Current price ${money(s.price)} • stored only on this device`;
+  $("positionDialogPrice").textContent=`Current price ${money(s.price)} • private to your account`;
   $("positionShares").value=p?p.shares:"";
   $("positionCost").value=p&&p.avgCost?p.avgCost:Number(s.price||0).toFixed(2);
   $("removePositionBtn").hidden=!p;
@@ -1238,7 +1375,7 @@ function renderHome(){
         <td><div style="display:flex;align-items:center;gap:9px">${logoMarkup(s,"table-logo")}<div><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.sector||"Unknown")}</div></div></div></td>
         <td>${money(s.price)}</td>
         <td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
-        <td><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span><div class="muted">${Number.isFinite(s._outlook.upRate)?s._outlook.upRate.toFixed(0)+"% analog up-rate":""}</div></td>
+        <td><span class="outlook-pill ${s._outlook.key}">${esc(s._outlook.label)}</span><div class="muted">${Number.isFinite(s._outlook.upRate)?s._outlook.upRate.toFixed(0)+"% analog up-rate":""}</div></td>
         <td class="score">${s._score}/100</td>
       </tr>`).join("")}</tbody>
     </table>`;
@@ -1310,7 +1447,7 @@ function renderStocks(){
       <button class="stock-main" data-select="${esc(s.ticker)}">
         <strong>${esc(s.ticker)}</strong>
         <div class="muted">${esc(s.name||"")}</div>
-        <div><span class="pill">${esc(s.sector||"Unknown")}</span><span class="pill">${s._score}/100</span><span class="outlook-pill ${s._outlook.key}">${s._outlook.label}</span></div>
+        <div><span class="pill">${esc(s.sector||"Unknown")}</span><span class="pill">${s._score}/100</span><span class="outlook-pill ${s._outlook.key}">${esc(s._outlook.label)}</span></div>
       </button>
       <button class="stock-main stock-price" data-select="${esc(s.ticker)}">
         <strong>${money(s.price)}</strong>
@@ -1355,6 +1492,7 @@ function drawSelected(){
   $("selectedScore").innerHTML=`<span class="pill ${s._score>=70?"green":"yellow"}">Research ${s._score}/100</span>`;
   $("profileLogo").innerHTML=logoMarkup(s,"profile-logo").replace('class="profile-logo"','class="profile-logo profile-logo-inner"');
   $("profileWatchBtn").textContent=watchlist.has(s.ticker)?"★ Watching":"☆ Watch";
+  $("saveOutlookBtn").textContent=savedPredictions[s.ticker]?"✓ Saved outlook":"Save outlook";
   const pos=positionFor(s.ticker);
   $("paperPositionBtn").textContent=pos?`Paper: ${pos.shares} sh`:"Paper position";
   $("liveNewsLink").href=`https://news.google.com/search?q=${encodeURIComponent((s.name||s.ticker)+" "+s.ticker+" stock")}`;
@@ -1368,7 +1506,7 @@ function drawSelected(){
   const upRate=Number.isFinite(pred.upRate) ? `${pred.upRate.toFixed(1)}%` : "—";
   const rangeText=(lowPrice && highPrice) ? `${money(lowPrice)} – ${money(highPrice)}` : "—";
   $("predictionBox").innerHTML=`
-    <div><div class="pred-label">5-day historical outlook</div><div class="pred-main ${pred.key}">${pred.label}</div><div class="model-badge">${esc(pred.model||"Historical model")}</div></div>
+    <div><div class="pred-label">5-day historical outlook</div><div class="pred-main ${esc(pred.key)}">${esc(pred.label)}</div><div class="model-badge">${esc(pred.model||"Historical model")}</div></div>
     <div><div class="pred-label">Analog up-rate</div><div class="pred-main">${upRate}</div></div>
     <div><div class="pred-label">Expected 5-day move</div><div class="pred-main">${expected}</div></div>
     <div><div class="pred-label">Historical analog range</div><div class="pred-main">${rangeText}</div></div>
@@ -1476,7 +1614,7 @@ function drawSelected(){
 
   const news=Array.isArray(s.news)?s.news.slice(0,5):[];
   $("stockNews").innerHTML=news.length?news.map(n=>`
-    <a class="news-item" href="${esc(n.url||"#")}" target="_blank" rel="noopener">
+    <a class="news-item" href="${esc(safeExternalUrl(n.url))}" target="_blank" rel="noopener noreferrer">
       <div><div class="news-title">${esc(n.title||"Market update")}</div><div class="news-meta">${esc(n.publisher||"News")} ${n.published_at?"• "+esc(humanDate(n.published_at)):""}</div></div>
       <div class="news-arrow">↗</div>
     </a>`).join(""):`
@@ -1508,29 +1646,28 @@ $("profileWatchBtn").addEventListener("click",()=>{
   drawSelected();
 });
 $("paperPositionBtn").addEventListener("click",()=>{ if(selectedTicker) openPositionDialog(selectedTicker); });
+$("saveOutlookBtn").addEventListener("click",()=>{if(selectedTicker) saveSelectedOutlook(selectedTicker);});
 $("positionShares").addEventListener("input",updatePositionPreview);
 $("positionCost").addEventListener("input",updatePositionPreview);
 
-$("savePositionBtn").addEventListener("click",()=>{
+$("savePositionBtn").addEventListener("click",async()=>{
   const ticker=$("positionTicker").value;
   const shares=Number($("positionShares").value);
   const avgCost=Number($("positionCost").value);
   if(!ticker || !Number.isFinite(shares) || shares<=0 || !Number.isFinite(avgCost) || avgCost<0){
-    alert("Enter a share amount above 0 and a valid average cost.");
-    return;
+    alert("Enter a share amount above 0 and a valid average cost.");return;
   }
-  paperPositions[ticker]={shares,avgCost};
-  savePaperPositions();
-  $("positionDialog").close();
-  renderHome();renderStocks();renderWatchlist();drawSelected();
+  $("savePositionBtn").disabled=true;
+  try{if(await savePaperPosition(ticker,shares,avgCost)) $("positionDialog").close();}
+  finally{$("savePositionBtn").disabled=false;}
 });
 
-$("removePositionBtn").addEventListener("click",()=>{
+$("removePositionBtn").addEventListener("click",async()=>{
   const ticker=$("positionTicker").value;
-  if(ticker && paperPositions[ticker]) delete paperPositions[ticker];
-  savePaperPositions();
-  $("positionDialog").close();
-  renderHome();renderStocks();renderWatchlist();drawSelected();
+  if(!ticker || !positionFor(ticker)) return;
+  $("removePositionBtn").disabled=true;
+  try{if(await deletePaperPosition(ticker)) $("positionDialog").close();}
+  finally{$("removePositionBtn").disabled=false;}
 });
 
 
@@ -1556,7 +1693,7 @@ $("priceChart").addEventListener("mousemove",e=>{
   tip.hidden=false;
   tip.style.left=Math.min(rect.width-170,Math.max(8,best.x+10))+"px";
   tip.style.top="12px";
-  tip.innerHTML=`<strong>${best.date}</strong><br>Close: ${money(best.close)}<br>Volume: ${compact(best.volume)}
+  tip.innerHTML=`<strong>${esc(best.date)}</strong><br>Close: ${money(best.close)}<br>Volume: ${compact(best.volume)}
     ${Number.isFinite(best.sma20)?`<br>SMA20: ${money(best.sma20)}`:""}
     ${Number.isFinite(best.sma50)?`<br>SMA50: ${money(best.sma50)}`:""}`;
 });
@@ -1611,7 +1748,7 @@ function renderOffers(){
       <div class="muted">${esc(o["Why"])}</div>
       <p>Hunter score: <strong>${Number(o["Hunter Score"]||0)}/100</strong></p>
       <progress value="${Number(o["Hunter Score"]||0)}" max="100"></progress>
-      <p><a href="${esc(o["Source URL"]||"#")}" target="_blank" rel="noopener">Open official source ↗</a></p>
+      <p><a href="${esc(safeExternalUrl(o["Source URL"]))}" target="_blank" rel="noopener noreferrer">Open official source ↗</a></p>
     </article>`).join(""):'<div class="empty">No offers match these filters.</div>';
 }
 $("offerFilter").addEventListener("change",renderOffers);
@@ -1619,36 +1756,266 @@ $("offerSearch").addEventListener("input",renderOffers);
 $("refreshOffers").addEventListener("click",refreshOffers);
 
 function renderWatchlist(){
+  if(!activeUser){
+    $("watchlistTable").innerHTML='<div class="account-locked">Sign in to see your private watchlist and saved outlooks. <button class="btn" id="watchSignIn" type="button">Sign in</button></div>';
+    $("watchSignIn").addEventListener("click",openAuthDialog);
+    renderSavedOutlooks();return;
+  }
   const rows=(decoratedStocks.length?decoratedStocks:decorateStocks(market.stocks||[])).filter(s=>watchlist.has(s.ticker)).sort((a,b)=>b._score-a._score);
-  if(!rows.length){ $("watchlistTable").innerHTML='<div class="empty">Tap ★ next to a stock to save it here.</div>'; return; }
+  if(!rows.length){ $("watchlistTable").innerHTML='<div class="empty">Tap ★ next to a stock to save it here.</div>'; renderSavedOutlooks(); return; }
   $("watchlistTable").innerHTML=`<table class="table"><thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Sector</th><th>Score</th><th></th></tr></thead>
     <tbody>${rows.map(s=>`<tr data-watch-open="${esc(s.ticker)}"><td><div style="display:flex;align-items:center;gap:9px">${logoMarkup(s,"table-logo")}<div><strong>${esc(s.ticker)}</strong><div class="muted">${esc(s.name||"")}</div></div></div></td>
       <td>${money(s.price)}</td><td class="${Number(s.change_pct)>=0?"up":"down"}">${pct(s.change_pct)}</td>
       <td>${esc(s.sector||"Unknown")}</td><td>${s._score}/100</td><td><button class="btn" data-remove="${esc(s.ticker)}">Remove</button></td></tr>`).join("")}</tbody></table>`;
   document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();toggleWatch(b.dataset.remove)}));
   document.querySelectorAll("[data-watch-open]").forEach(r=>r.addEventListener("click",()=>openStock(r.dataset.watchOpen)));
+  renderSavedOutlooks();
 }
-$("clearWatchlist").addEventListener("click",()=>{watchlist.clear();saveWatchlist();renderWatchlist();renderStocks();});
+$("clearWatchlist").addEventListener("click",async()=>{
+  if(!requireAccount() || !watchlist.size || !confirm("Clear only your own saved watchlist?")) return;
+  const userId=activeUser.id;
+  const {error}=await db.from("watchlists").delete().eq("user_id",userId);
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed"));return;}
+  watchlist.clear();refreshPersonalUI();
+});
 
 $("settingsBtn").addEventListener("click",()=>{
-  $("offerFeedUrl").value=localStorage.getItem("v5OfferFeed")||"";
-  $("marketFeedUrl").value=localStorage.getItem("v5MarketFeed")||"";
+  $("offerFeedUrl").value=safeStore.getItem("v5OfferFeed")||"";
+  $("marketFeedUrl").value=safeStore.getItem("v5MarketFeed")||"";
   $("settingsDialog").showModal();
 });
-$("saveSettings").addEventListener("click",()=>{
+$("saveSettings").addEventListener("click",event=>{
   const a=$("offerFeedUrl").value.trim(),b=$("marketFeedUrl").value.trim();
-  a?localStorage.setItem("v5OfferFeed",a):localStorage.removeItem("v5OfferFeed");
-  b?localStorage.setItem("v5MarketFeed",b):localStorage.removeItem("v5MarketFeed");
+  if((a && safeFeedUrl(a,null)===null) || (b && safeFeedUrl(b,null)===null)){
+    event.preventDefault();
+    alert("For your privacy, stock and offer feeds must be JSON files hosted inside this app's GitHub Pages site.");
+    return;
+  }
+  a?safeStore.setItem("v5OfferFeed",a):safeStore.removeItem("v5OfferFeed");
+  b?safeStore.setItem("v5MarketFeed",b):safeStore.removeItem("v5MarketFeed");
   setTimeout(()=>{refreshOffers();refreshStocks();},60);
 });
 
 if("Notification" in window && Notification.permission==="granted") $("notifyBtn").textContent="🔔 Alerts enabled";
 
-if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./service-worker.js?v=8.1", {updateViaCache:"none"}).catch(()=>{});
+
+// V9 accounts: all personal data is loaded from Supabase for the currently authenticated user.
+// Shared public market_data.json still contains the same model output for every visitor.
+let db=null;
+let activeUser=null;
+let savedPredictions={};
+let authEpoch=0;
+let accountLoading=false;
+let resetMode=false;
+const userConfig=window.MARCELO_CONFIG||{};
+
+function showAuthMessage(message,error=false){
+  $("authMessage").textContent=String(message||"");
+  $("authMessage").classList.toggle("error",error);
+}
+function showAccountError(error){
+  const message=error?.message||"Could not save personal data. Check your connection and database setup.";
+  console.error("Marcelo account action:",error?.name||"Request failed");
+  showAuthMessage(message,true);
+  if(!$("authDialog").open) $("authDialog").showModal();
+}
+function openAuthDialog(){
+  showAuthMessage("");
+  $("authDialog").showModal();
+}
+function requireAccount(){
+  if(!db){openAuthDialog();showAuthMessage("Account setup is required before personal data can be saved.",true);return false;}
+  if(!activeUser || accountLoading){openAuthDialog();showAuthMessage("Please sign in and wait for your account to finish loading.",true);return false;}
+  return true;
+}
+function refreshPersonalUI(){
+  renderHome();renderStocks();renderWatchlist();
+  if(selectedTicker) drawSelected();
+}
+function updateAuthUI(){
+  const signed=!!activeUser;
+  $("accountBtn").textContent=signed?"My account":"Sign in";
+  $("accountBanner").hidden=signed;
+  $("authSignedOut").hidden=signed;
+  $("authSignedIn").hidden=!signed;
+  $("currentEmail").textContent=activeUser?.email||"";
+  $("accountBanner").firstChild.textContent=!db
+    ? "Accounts need one-time setup by the app owner. Market research remains public. "
+    : "Market research is public. Sign in to keep your paper portfolio and saved analysis private. ";
+  $("googleLoginBtn").hidden=!userConfig.googleLoginEnabled;
+  if(!db){$("authHelp").textContent="App owner: configure Supabase in config.js and run the SQL setup file. Until then the app is research-only.";}
+}
+function resetAccountData(){
+  watchlist=new Set();paperPositions={};savedPredictions={};
+  // Deliberately ignore V8's localStorage watchlist and portfolio so shared browsers do not leak them.
+  // Do not delete legacy data automatically; the owner may need it for a manual migration.
+  refreshPersonalUI();
+}
+async function loadOwnData(userId,epoch){
+  accountLoading=true;
+  try{
+    const [w,p,s]=await Promise.all([
+      db.from("watchlists").select("ticker").eq("user_id",userId),
+      db.from("portfolio_positions").select("ticker,shares,avg_cost").eq("user_id",userId),
+      db.from("saved_predictions").select("ticker,snapshot,saved_at").eq("user_id",userId)
+    ]);
+    if(w.error || p.error || s.error) throw w.error||p.error||s.error;
+    if(epoch!==authEpoch || activeUser?.id!==userId) return;
+    watchlist=new Set((w.data||[]).map(x=>x.ticker));
+    paperPositions=Object.fromEntries((p.data||[]).map(x=>[x.ticker,{shares:Number(x.shares),avgCost:Number(x.avg_cost)}]));
+    savedPredictions=Object.fromEntries((s.data||[]).map(x=>[x.ticker,{snapshot:x.snapshot,saved_at:x.saved_at}]));
+    refreshPersonalUI();
+  }catch(err){
+    if(epoch===authEpoch){resetAccountData();showAccountError(err);}
+  }finally{
+    if(epoch===authEpoch) accountLoading=false;
+  }
+}
+async function applyAuthUser(user){
+  const uid=user?.id||null;
+  if(uid===activeUser?.id){
+    if(uid && user?.email!==activeUser.email){activeUser=user;updateAuthUI();}
+    return;
+  }
+  const epoch=++authEpoch;
+  activeUser=user||null;
+  accountLoading=!!user;
+  resetAccountData(); // Clear the old account's data *before* any new user data loads.
+  updateAuthUI();
+  if(user) await loadOwnData(user.id,epoch);
+}
+function loginRedirect(){
+  return location.origin+location.pathname;
+}
+async function accountSubmit(mode){
+  if(!db){showAuthMessage("Ask the app owner to configure accounts first.",true);return;}
+  const email=$("authEmail").value.trim();
+  const password=$("authPassword").value;
+  if(!email.includes("@") || password.length<8){showAuthMessage("Enter an email address and a password of at least 8 characters.",true);return;}
+  $("signInBtn").disabled=true;$("signUpBtn").disabled=true;
+  showAuthMessage("Connecting...");
+  try{
+    const result=mode==="signup"
+      ? await db.auth.signUp({email,password,options:{emailRedirectTo:loginRedirect()}})
+      : await db.auth.signInWithPassword({email,password});
+    if(result.error) throw result.error;
+    if(mode==="signup" && !result.data.session){
+      showAuthMessage("Account requested. Check your email to confirm it, then sign in.");
+    }else{
+      showAuthMessage("Signed in. Loading your private dashboard...");
+      // onAuthStateChange handles assigning user and loading personal data.
+    }
+  }catch(err){showAuthMessage(err.message||"Unable to sign in.",true);}
+  finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false;}
 }
 
-Promise.all([refreshOffers(),refreshStocks()]).then(renderHome);
+async function saveSelectedOutlook(ticker){
+  if(!requireAccount()) return;
+  const s=(decoratedStocks||[]).find(x=>x.ticker===ticker);
+  if(!s) return;
+  const userId=activeUser.id;
+  const snapshot={
+    ticker:s.ticker,name:String(s.name||s.ticker).slice(0,100),
+    price:Number(s.price)||0,trend:s._outlook?.label||"Neutral",
+    up_rate:Number.isFinite(s._outlook?.upRate)?s._outlook.upRate:null,
+    expected_return_pct:Number.isFinite(s._outlook?.expectedReturn)?s._outlook.expectedReturn:null,
+    recorded_from:s.prediction?.model||"Historical trend heuristic",
+    model_data_updated_at:market.updated_at||null
+  };
+  const {error}=await db.from("saved_predictions").upsert(
+    {user_id:userId,ticker,snapshot,saved_at:new Date().toISOString()},
+    {onConflict:"user_id,ticker"}
+  );
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed"));return;}
+  savedPredictions[ticker]={snapshot,saved_at:new Date().toISOString()};
+  refreshPersonalUI();
+}
+async function deleteSavedOutlook(ticker){
+  if(!requireAccount()) return;
+  const userId=activeUser.id;
+  const {error}=await db.from("saved_predictions").delete().eq("user_id",userId).eq("ticker",ticker);
+  if(error || activeUser?.id!==userId){showAccountError(error||new Error("Account changed"));return;}
+  delete savedPredictions[ticker];refreshPersonalUI();
+}
+function renderSavedOutlooks(){
+  if(!activeUser){
+    $("savedOutlooks").innerHTML='<div class="account-locked">Sign in to access only your own saved stock predictions.</div>';return;
+  }
+  const rows=Object.entries(savedPredictions).sort((a,b)=>String(b[1].saved_at||"").localeCompare(String(a[1].saved_at||"")));
+  $("savedOutlooks").innerHTML=rows.length?rows.map(([ticker,item])=>{
+    const snap=item.snapshot||{};
+    return `<div class="saved-outlook-row">
+      <div><strong>${esc(ticker)}</strong> <span class="muted">${esc(snap.name||"")}</span>
+      <div class="muted">Saved: ${esc(humanDate(item.saved_at))} • ${esc(snap.trend||"Unspecified")} • Price at save: ${money(snap.price)}</div></div>
+      <div class="controls"><button type="button" class="btn" data-view-outlook="${esc(ticker)}">View stock</button>
+      <button type="button" class="btn" data-delete-outlook="${esc(ticker)}">Remove</button></div>
+    </div>`;
+  }).join(""):'<div class="empty">No saved outlooks yet. Open any stock and click “Save outlook”.</div>';
+  document.querySelectorAll("[data-view-outlook]").forEach(b=>b.addEventListener("click",()=>openStock(b.dataset.viewOutlook)));
+  document.querySelectorAll("[data-delete-outlook]").forEach(b=>b.addEventListener("click",()=>deleteSavedOutlook(b.dataset.deleteOutlook)));
+}
+
+$("accountBtn").addEventListener("click",openAuthDialog);
+$("bannerSignIn").addEventListener("click",openAuthDialog);
+$("closeAuth").addEventListener("click",()=>$("authDialog").close());
+$("signInBtn").addEventListener("click",()=>accountSubmit("signin"));
+$("signUpBtn").addEventListener("click",()=>accountSubmit("signup"));
+$("forgotPasswordBtn").addEventListener("click",async()=>{
+  if(!db){showAuthMessage("Account setup is required.",true);return;}
+  const email=$("authEmail").value.trim();
+  if(!email.includes("@")){showAuthMessage("Enter your email first.",true);return;}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:loginRedirect()});
+  showAuthMessage(error?error.message:"If the address is registered, a reset email will arrive.",!!error);
+});
+$("googleLoginBtn").addEventListener("click",async()=>{
+  if(!db){showAuthMessage("Account setup is required.",true);return;}
+  const {error}=await db.auth.signInWithOAuth({provider:"google",options:{redirectTo:loginRedirect()}});
+  if(error) showAuthMessage("Google login is unavailable until the owner enables it in Supabase. "+error.message,true);
+});
+$("updatePasswordBtn").addEventListener("click",async()=>{
+  if(!db) return;
+  const password=$("newPassword").value;
+  if(password.length<8){showAuthMessage("Use at least 8 characters.",true);return;}
+  const {error}=await db.auth.updateUser({password});
+  showAuthMessage(error?error.message:"Password updated. You can close this window.",!!error);
+  if(!error){resetMode=false;$("authPasswordReset").hidden=true;}
+});
+$("signOutBtn").addEventListener("click",async()=>{
+  if(!db) return;
+  // Hide private data immediately, even if the network request takes time.
+  await applyAuthUser(null);
+  const {error}=await db.auth.signOut({scope:"local"});
+  if(error){showAccountError(error);return;}
+  $("authDialog").close();
+});
+
+async function initAccounts(){
+  const url=String(userConfig.supabaseUrl||"").trim();
+  const key=String(userConfig.supabasePublishableKey||"").trim();
+  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url) || key.length<20 || !window.supabase?.createClient){
+    updateAuthUI();return;
+  }
+  db=window.supabase.createClient(url,key,{
+    auth:{persistSession:true,storage:window.sessionStorage,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}
+  });
+  // Keep callback synchronous; never await database calls inside the auth callback.
+  db.auth.onAuthStateChange((event,session)=>{
+    if(event==="PASSWORD_RECOVERY"){
+      resetMode=true;$("authPasswordReset").hidden=false;openAuthDialog();
+    }
+    if(["INITIAL_SESSION","SIGNED_IN","SIGNED_OUT","USER_UPDATED"].includes(event)){
+      setTimeout(()=>{applyAuthUser(session?.user||null).catch(showAccountError);},0);
+    }
+  });
+  updateAuthUI();
+}
+
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("./service-worker.js?v=9.1", {updateViaCache:"none"}).catch(()=>{});
+}
+
+Promise.allSettled([refreshOffers(),refreshStocks()]).then(renderHome);
+initAccounts().catch(showAccountError);
 </script>
 </body>
 </html>
